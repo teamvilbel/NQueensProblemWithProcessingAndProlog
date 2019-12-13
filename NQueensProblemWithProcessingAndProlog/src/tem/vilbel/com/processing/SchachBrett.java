@@ -22,7 +22,7 @@ public class SchachBrett extends PApplet {
 
 	SolutionsWithProlog solver; 
 	
-	private final int X_OFF = 50;
+	private final int X_OFF = 125;
 	private final int Y_OFF = 50;
 	private final int SQUARE_SIZE = 75;
 	private final int SIZE = 10;
@@ -32,6 +32,8 @@ public class SchachBrett extends PApplet {
 	private PImage img;
 	private ProcessingButton startButton;
 	private ProcessingButton quitButton;
+	private ProcessingButton nextButton;
+	private ProcessingButton prevButton;
 
 	private boolean mainMenu;
 	private IProcessingButtonAction startSolutionAction = new IProcessingButtonAction() {
@@ -50,6 +52,20 @@ public class SchachBrett extends PApplet {
 			SchachBrett.this.exit();
 		}
 	};
+	private IProcessingButtonAction nextAction = new IProcessingButtonAction() {
+		
+		@Override
+		public void doAction() {
+			System.out.println("Next");
+		}
+	};
+	private IProcessingButtonAction prevAction = new IProcessingButtonAction() {
+		
+		@Override
+		public void doAction() {
+			System.out.println("Prev");
+		}
+	};
 
 	public SchachBrett() {
 		super();
@@ -64,8 +80,14 @@ public class SchachBrett extends PApplet {
 		img = loadImage("./resources/Chess_queen_icon.png", "png");
 		startButton = new ProcessingButton(this, width / 2 - 100, 200, "Start");
 		quitButton = new ProcessingButton(this, width / 2 - 100, 300, "Quit");
+		
+		nextButton = new ProcessingButton(this, width - 100, 50, "Next");
+		prevButton = new ProcessingButton(this, 20, 50, "Prev");
+
 		startButton.onClick(startSolutionAction);
 		quitButton.onClick(quitAction);
+		nextButton.onClick(nextAction);
+		prevButton.onClick(prevAction);
 	}
 
 	public void draw() {
@@ -75,6 +97,8 @@ public class SchachBrett extends PApplet {
 		} else {
 			drawField();
 			drawQueenTrail();
+			prevButton.draw();
+			nextButton.draw();
 
 			// Draw queens
 			for (List<Integer> index : queens) {
