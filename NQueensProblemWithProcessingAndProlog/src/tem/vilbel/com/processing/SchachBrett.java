@@ -1,13 +1,15 @@
 package tem.vilbel.com.processing;
+
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
-
 
 import processing.core.PApplet;
 import processing.core.PImage;
 import tem.vilbel.com.processing.button.IProcessingButtonAction;
 import tem.vilbel.com.processing.button.ProcessingButton;
+import tem.vilbel.com.prolog.SolutionsWithProlog;
 
 /**
  * @author Noah Ruben
@@ -18,12 +20,14 @@ import tem.vilbel.com.processing.button.ProcessingButton;
 
 public class SchachBrett extends PApplet {
 
+	SolutionsWithProlog solver; 
+	
 	private final int X_OFF = 50;
 	private final int Y_OFF = 50;
 	private final int SQUARE_SIZE = 75;
 	private final int SIZE = 10;
 
-	private Set<int[]> queens;
+	private Set<List<Integer>> queens;
 
 	private PImage img;
 	private ProcessingButton startButton;
@@ -35,6 +39,7 @@ public class SchachBrett extends PApplet {
 		@Override
 		public void doAction() {
 			SchachBrett.this.mainMenu = false;
+			solver.solve();
 		}
 	};
 	private IProcessingButtonAction quitAction = new IProcessingButtonAction() {
@@ -48,8 +53,9 @@ public class SchachBrett extends PApplet {
 
 	public SchachBrett() {
 		super();
-		queens = new HashSet<int[]>();
+		queens = new HashSet<List<Integer>>();
 		mainMenu = true;
+		solver = new SolutionsWithProlog(SIZE, queens);
 	}
 
 	public void settings() {
@@ -71,8 +77,9 @@ public class SchachBrett extends PApplet {
 			drawQueenTrail();
 
 			// Draw queens
-			for (int[] index : queens) {
-				image(img, index[0] * SQUARE_SIZE + X_OFF, index[1] * SQUARE_SIZE + Y_OFF, SQUARE_SIZE, SQUARE_SIZE);
+			for (List<Integer> index : queens) {
+				image(img, index.get(0) * SQUARE_SIZE + X_OFF, index.get(1) * SQUARE_SIZE + Y_OFF, SQUARE_SIZE,
+						SQUARE_SIZE);
 			}
 		}
 	}
@@ -83,19 +90,19 @@ public class SchachBrett extends PApplet {
 	}
 
 	private void drawQueenTrail() {
-		for (int[] index : queens) {
+		for (List<Integer> index : queens) {
 			// Horizontal und vertikal
 			for (int i = 0; i < SIZE; i++) {
 				fill(64);
-				int tempX = index[0] * SQUARE_SIZE + X_OFF;
-				int tempY = index[1] * SQUARE_SIZE + Y_OFF;
+				int tempX = index.get(0) * SQUARE_SIZE + X_OFF;
+				int tempY = index.get(1) * SQUARE_SIZE + Y_OFF;
 				rect(i * SQUARE_SIZE + X_OFF, tempY, SQUARE_SIZE, SQUARE_SIZE);
 				rect(tempX, i * SQUARE_SIZE + Y_OFF, SQUARE_SIZE, SQUARE_SIZE);
 			}
 			// Diagolnal
 			fill(64);
-			int temp_ix = index[0];
-			int temp_iy = index[1];
+			int temp_ix = index.get(0);
+			int temp_iy = index.get(1);
 			while (temp_ix != 0 && temp_iy != 0) {
 				temp_ix--;
 				temp_iy--;
@@ -109,8 +116,8 @@ public class SchachBrett extends PApplet {
 				temp_iy++;
 			}
 
-			temp_ix = index[0];
-			temp_iy = index[1];
+			temp_ix = index.get(0);
+			temp_iy = index.get(1);
 			while (temp_ix > SIZE && temp_iy != 0) {
 				temp_ix++;
 				temp_iy--;
@@ -151,17 +158,17 @@ public class SchachBrett extends PApplet {
 			startButton.mousePressed();
 			quitButton.mousePressed();
 		} else {
-			int[] index = getChessTileFromMouse(mouseX, mouseY);
-			System.out.println("Chess tile index " + Arrays.toString(index));
-			if (index[0] >= 0 && index[1] >= 0) {
+			List<Integer> index = getChessTileFromMouse(mouseX, mouseY);
+			System.out.println("Chess tile index " + Arrays.toString(index.toArray()));
+			if (index.get(0) >= 0 && index.get(1) >= 0) {
 				queens.add(index);
 			}
 		}
 	}
 
-	private int[] getChessTileFromMouse(int x, int y) {
+	private List<Integer> getChessTileFromMouse(int x, int y) {
 		if (x > SIZE * SQUARE_SIZE + X_OFF || y > SIZE * SQUARE_SIZE + Y_OFF || x < X_OFF || y < Y_OFF) {
-			return new int[] { -1, -1 };
+			return Arrays.asList(-1, -1);
 		} else {
 			int tempX = (x - X_OFF);
 			tempX = tempX - (tempX % SQUARE_SIZE);
@@ -170,12 +177,12 @@ public class SchachBrett extends PApplet {
 			int tempY = (y - Y_OFF);
 			tempY = tempY - (tempY % SQUARE_SIZE);
 			tempY = tempY / SQUARE_SIZE;
-			return new int[] { tempX, tempY };
+			return Arrays.asList(tempX, tempY);
 		}
 	}
 
 	public static void startApp() {
 		String[] appletArgs = new String[] { SchachBrett.class.getName() };
 		PApplet.main(appletArgs);
-	}	
+	}
 }
