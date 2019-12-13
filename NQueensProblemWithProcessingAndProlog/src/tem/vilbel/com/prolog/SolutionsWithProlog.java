@@ -57,17 +57,17 @@ public class SolutionsWithProlog {
 			Map<String,Term>[] allSolutions = Query.allSolutions(query);
 			System.out.println("This has "+ allSolutions.length + " solutions");
 			
-			for (Map<String, Term> map : allSolutions) {
-				Collection<Term> values = map.values();
-				for (Term term : values) {
-					Term[] terms = term.toTermArray();
-					for (Term ints : terms) {
-						
-						System.out.print(ints + ", ");
-					}
-					System.out.println("");
-				}
-			}
+//			for (Map<String, Term> map : allSolutions) {
+//				Collection<Term> values = map.values();
+//				for (Term term : values) {
+//					Term[] terms = term.toTermArray();
+//					for (Term ints : terms) {
+//						
+//						System.out.print(ints + ", ");
+//					}
+//					System.out.println("");
+//				}
+//			}
 		}else {
 			System.out.println("This has no solutions");
 		}

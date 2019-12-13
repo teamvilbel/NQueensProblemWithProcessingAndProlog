@@ -78,9 +78,9 @@ public class SchachBrett extends PApplet {
 		size(1000, 1000);
 //		fullScreen();
 		img = loadImage("./resources/Chess_queen_icon.png", "png");
+
 		startButton = new ProcessingButton(this, width / 2 - 100, 200, "Start");
 		quitButton = new ProcessingButton(this, width / 2 - 100, 300, "Quit");
-		
 		nextButton = new ProcessingButton(this, width - 100, 50, "Next");
 		prevButton = new ProcessingButton(this, 20, 50, "Prev");
 
@@ -181,6 +181,8 @@ public class SchachBrett extends PApplet {
 		if (mainMenu) {
 			startButton.mousePressed();
 			quitButton.mousePressed();
+			nextButton.mousePressed();
+			prevButton.mousePressed();
 		} else {
 			List<Integer> index = getChessTileFromMouse(mouseX, mouseY);
 			System.out.println("Chess tile index " + Arrays.toString(index.toArray()));
