@@ -1,4 +1,4 @@
-import tem.vilbel.com.processing.SchachBrett;
+import tem.vilbel.com.processing.ProcessingApplication;
 
 /**
  * 
@@ -16,7 +16,7 @@ public class Main {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		SchachBrett.startApp();
+		ProcessingApplication.startApp();
 	}
 
 }

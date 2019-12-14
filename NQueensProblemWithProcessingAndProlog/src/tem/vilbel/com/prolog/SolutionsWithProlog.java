@@ -51,27 +51,32 @@ public class SolutionsWithProlog {
 	
 	
 
-	public void solve() {
+	public List<List<Integer>> solve() {
 		String query = String.format(ALL_SOLUTIONS_QUERRY, this.N);
+		ArrayList<List<Integer>> solutions = new ArrayList<List<Integer>>();
 		if (Query.hasSolution(query)) {
 			Map<String,Term>[] allSolutions = Query.allSolutions(query);
 			System.out.println("This has "+ allSolutions.length + " solutions");
 			
-//			for (Map<String, Term> map : allSolutions) {
-//				Collection<Term> values = map.values();
-//				for (Term term : values) {
-//					Term[] terms = term.toTermArray();
-//					for (Term ints : terms) {
-//						
-//						System.out.print(ints + ", ");
-//					}
+			
+			for (Map<String, Term> map : allSolutions) {
+				Collection<Term> values = map.values();
+				for (Term term : values) {
+					Term[] terms = term.toTermArray();
+					ArrayList<Integer> solution = new ArrayList<Integer>();
+					for (Term ints : terms) {
+						solution.add(ints.intValue());
+//						System.out.print(ints.intValue() + ", ");
+					}
 //					System.out.println("");
-//				}
-//			}
+					solutions.add(solution);
+				}
+			}
+			return solutions;
 		}else {
 			System.out.println("This has no solutions");
+			return solutions;
 		}
-		
 	}
 	
 	public static void main(String[] args) {

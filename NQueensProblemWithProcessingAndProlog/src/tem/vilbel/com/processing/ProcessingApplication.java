@@ -1,5 +1,6 @@
 package tem.vilbel.com.processing;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -18,7 +19,7 @@ import tem.vilbel.com.prolog.SolutionsWithProlog;
  * @created 09.12.2019
  */
 
-public class SchachBrett extends PApplet {
+public class ProcessingApplication extends PApplet {
 
 	SolutionsWithProlog solver; 
 	
@@ -26,7 +27,9 @@ public class SchachBrett extends PApplet {
 	private final int Y_OFF = 50;
 	private final int SQUARE_SIZE = 75;
 	private final int SIZE = 10;
-
+	
+	private List<List<Integer>> solutions;
+	private int solutionIndex = 0; 
 	private Set<List<Integer>> queens;
 
 	private PImage img;
@@ -40,8 +43,9 @@ public class SchachBrett extends PApplet {
 
 		@Override
 		public void doAction() {
-			SchachBrett.this.mainMenu = false;
-			solver.solve();
+			ProcessingApplication.this.mainMenu = false;
+			solutions = solver.solve();
+			queens = getProcessingIndexFromPrologIndex(solutions.get(solutionIndex));
 		}
 	};
 	private IProcessingButtonAction quitAction = new IProcessingButtonAction() {
@@ -49,7 +53,7 @@ public class SchachBrett extends PApplet {
 		@Override
 		public void doAction() {
 			System.out.println("Quit");
-			SchachBrett.this.exit();
+			ProcessingApplication.this.exit();
 		}
 	};
 	private IProcessingButtonAction nextAction = new IProcessingButtonAction() {
@@ -57,6 +61,9 @@ public class SchachBrett extends PApplet {
 		@Override
 		public void doAction() {
 			System.out.println("Next");
+			solutionIndex++;
+			queens = getProcessingIndexFromPrologIndex(solutions.get(solutionIndex));
+			
 		}
 	};
 	private IProcessingButtonAction prevAction = new IProcessingButtonAction() {
@@ -64,10 +71,12 @@ public class SchachBrett extends PApplet {
 		@Override
 		public void doAction() {
 			System.out.println("Prev");
+			solutionIndex--;
+			queens = getProcessingIndexFromPrologIndex(solutions.get(solutionIndex));
 		}
 	};
 
-	public SchachBrett() {
+	public ProcessingApplication() {
 		super();
 		queens = new HashSet<List<Integer>>();
 		mainMenu = true;
@@ -181,14 +190,14 @@ public class SchachBrett extends PApplet {
 		if (mainMenu) {
 			startButton.mousePressed();
 			quitButton.mousePressed();
-			nextButton.mousePressed();
-			prevButton.mousePressed();
 		} else {
 			List<Integer> index = getChessTileFromMouse(mouseX, mouseY);
 			System.out.println("Chess tile index " + Arrays.toString(index.toArray()));
 			if (index.get(0) >= 0 && index.get(1) >= 0) {
 				queens.add(index);
 			}
+			nextButton.mousePressed();
+			prevButton.mousePressed();
 		}
 	}
 
@@ -206,9 +215,20 @@ public class SchachBrett extends PApplet {
 			return Arrays.asList(tempX, tempY);
 		}
 	}
+	
+	private Set<List<Integer>> getProcessingIndexFromPrologIndex(List<Integer> solution) {
+		Set<List<Integer>> indices  = new HashSet<List<Integer>>();
+		for (Integer integer : solution) {
+			ArrayList<Integer> tempIndex = new ArrayList<Integer>();
+			tempIndex.add(solution.indexOf(integer));
+			tempIndex.add(integer);
+			indices.add(tempIndex);
+		} 
+		return indices;
+	}
 
 	public static void startApp() {
-		String[] appletArgs = new String[] { SchachBrett.class.getName() };
+		String[] appletArgs = new String[] { ProcessingApplication.class.getName() };
 		PApplet.main(appletArgs);
 	}
 }
