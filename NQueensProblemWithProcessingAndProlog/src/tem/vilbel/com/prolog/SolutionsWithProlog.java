@@ -33,7 +33,7 @@ public class SolutionsWithProlog {
 	public final int N;
 	public Set<List<Integer>> queens;
 	
-	private final String ALL_SOLUTIONS_QUERRY = "n_queens(%d, Qs), labeling([ff], Qs).";
+	private final String ALL_SOLUTIONS_QUERRY = "distinct(n_queens(%d, Qs)), labeling([ff], Qs).";
 	
 	public SolutionsWithProlog(final int N, Set<List<Integer>> queens) {
 		super();
@@ -79,52 +79,12 @@ public class SolutionsWithProlog {
 		}
 	}
 	
-	public static void main(String[] args) {
-		
-
-		
-
-		Variable N = new Variable("N");
-
-		Variable A = new Variable();
-		Variable B = new Variable();
-		Variable C = new Variable();
-		Variable D = new Variable();
-		Variable E = new Variable();
-		Variable F = new Variable();
-		Variable G = new Variable();
-		Variable H = new Variable();
-
-		String t1 = "n_queens(8, Qs), labeling([ff], Qs).";
-		String t2 = "H = 1, N = 8, n_queens(N, [A, B, C, D, E, F, G, H]), labeling([ff], [A, B, C, D, E, F, G]).";
-
-		System.out.println();
-		Map<String, Term>[] allSolutions = Query.allSolutions(t1);
-
-		for (Map<String, Term> map : allSolutions) {
-			Collection<Term> values = map.values();
-			for (Term term : values) {
-				Term[] terms = term.toTermArray();
-				for (Term ints : terms) {
-					
-					System.out.print(ints + ", ");
-				}
-				System.out.println("");
-			}
-		}
-
-	}
-
-
-
 	/**
 	 * @return the queens
 	 */
 	public Set<List<Integer>> getQueens() {
 		return queens;
 	}
-
-
 
 	/**
 	 * @param queens the queens to set

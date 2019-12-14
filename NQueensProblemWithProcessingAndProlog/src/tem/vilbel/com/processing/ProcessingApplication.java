@@ -26,7 +26,7 @@ public class ProcessingApplication extends PApplet {
 	private final int X_OFF = 125;
 	private final int Y_OFF = 50;
 	private final int SQUARE_SIZE = 75;
-	private final int SIZE = 10;
+	private final int SIZE = 8;
 	
 	private List<List<Integer>> solutions;
 	private int solutionIndex = 0; 
