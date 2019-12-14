@@ -62,6 +62,12 @@ public class ProcessingApplication extends PApplet {
 		public void doAction() {
 			System.out.println("Next");
 			solutionIndex++;
+			
+			if (solutionIndex < 0) {
+				solutionIndex = 0;
+			}else if(solutionIndex > solutions.size() -1){
+				solutionIndex = solutions.size() -1;
+			}
 			queens = getProcessingIndexFromPrologIndex(solutions.get(solutionIndex));
 			
 		}
@@ -72,6 +78,11 @@ public class ProcessingApplication extends PApplet {
 		public void doAction() {
 			System.out.println("Prev");
 			solutionIndex--;
+			if (solutionIndex < 0) {
+				solutionIndex = 0;
+			}else if(solutionIndex > solutions.size() -1){
+				solutionIndex = solutions.size() -1;
+			}
 			queens = getProcessingIndexFromPrologIndex(solutions.get(solutionIndex));
 		}
 	};
