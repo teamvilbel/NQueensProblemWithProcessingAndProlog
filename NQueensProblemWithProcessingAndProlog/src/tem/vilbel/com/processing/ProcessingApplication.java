@@ -271,13 +271,12 @@ public class ProcessingApplication extends PApplet {
 		if (mainMenu) {
 			startButton.mousePressed();
 			quitButton.mousePressed();
-			if (mainMenuChooseSize) {
+		}else if (mainMenuChooseSize) {
 				chooseSize4Button.mousePressed();       
 				chooseSize8Button.mousePressed();       
 				chooseSize10Button.mousePressed();      
 				chooseSize16Button.mousePressed();      
 				chooseSizeUserButton.mousePressed();    
-			}
 		} else {
 			List<Integer> index = getChessTileFromMouse(mouseX, mouseY);
 			System.out.println("Chess tile index " + Arrays.toString(index.toArray()));
