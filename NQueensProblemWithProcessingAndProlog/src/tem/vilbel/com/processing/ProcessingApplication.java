@@ -6,10 +6,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.jpl7.fli.qid_t;
+
 import processing.core.PApplet;
 import processing.core.PImage;
 import tem.vilbel.com.processing.button.IProcessingButtonAction;
 import tem.vilbel.com.processing.button.ProcessingButton;
+import tem.vilbel.com.processing.button.ProcessingLabel;
 import tem.vilbel.com.prolog.SolutionsWithProlog;
 
 /**
@@ -21,15 +24,15 @@ import tem.vilbel.com.prolog.SolutionsWithProlog;
 
 public class ProcessingApplication extends PApplet {
 
-	SolutionsWithProlog solver; 
-	
+	SolutionsWithProlog solver;
+
 	private final int X_OFF = 125;
 	private final int Y_OFF = 50;
 	private final int SQUARE_SIZE = 75;
-	private final int SIZE = 8;
-	
+	private int SIZE = 8;
+
 	private List<List<Integer>> solutions;
-	private int solutionIndex = 0; 
+	private int solutionIndex = 0;
 	private Set<List<Integer>> queens;
 
 	private PImage img;
@@ -38,16 +41,33 @@ public class ProcessingApplication extends PApplet {
 	private ProcessingButton nextButton;
 	private ProcessingButton prevButton;
 
+	private ProcessingLabel chooseLabel;
+	private ProcessingButton chooseSize4Button;
+	private ProcessingButton chooseSize8Button;
+	private ProcessingButton chooseSize10Button;
+	private ProcessingButton chooseSize16Button;
+	private ProcessingButton chooseSizeUserButton;
+
 	private boolean mainMenu;
-	private IProcessingButtonAction startSolutionAction = new IProcessingButtonAction() {
+	private boolean mainMenuChooseSize;
+
+	private IProcessingButtonAction showSolutionsAction = new IProcessingButtonAction() {
 
 		@Override
 		public void doAction() {
-			ProcessingApplication.this.mainMenu = false;
+			solver = new SolutionsWithProlog(SIZE, queens);
 			solutions = solver.solve();
 			queens = getProcessingIndexFromPrologIndex(solutions.get(solutionIndex));
 		}
 	};
+
+	private IProcessingButtonAction startAction = new IProcessingButtonAction() {
+		@Override
+		public void doAction() {
+			ProcessingApplication.this.mainMenuChooseSize = true;
+		}
+	};
+
 	private IProcessingButtonAction quitAction = new IProcessingButtonAction() {
 
 		@Override
@@ -57,31 +77,31 @@ public class ProcessingApplication extends PApplet {
 		}
 	};
 	private IProcessingButtonAction nextAction = new IProcessingButtonAction() {
-		
+
 		@Override
 		public void doAction() {
 			System.out.println("Next");
 			solutionIndex++;
-			
+
 			if (solutionIndex < 0) {
 				solutionIndex = 0;
-			}else if(solutionIndex > solutions.size() -1){
-				solutionIndex = solutions.size() -1;
+			} else if (solutionIndex > solutions.size() - 1) {
+				solutionIndex = solutions.size() - 1;
 			}
 			queens = getProcessingIndexFromPrologIndex(solutions.get(solutionIndex));
-			
+
 		}
 	};
 	private IProcessingButtonAction prevAction = new IProcessingButtonAction() {
-		
+
 		@Override
 		public void doAction() {
 			System.out.println("Prev");
 			solutionIndex--;
 			if (solutionIndex < 0) {
 				solutionIndex = 0;
-			}else if(solutionIndex > solutions.size() -1){
-				solutionIndex = solutions.size() -1;
+			} else if (solutionIndex > solutions.size() - 1) {
+				solutionIndex = solutions.size() - 1;
 			}
 			queens = getProcessingIndexFromPrologIndex(solutions.get(solutionIndex));
 		}
@@ -91,6 +111,7 @@ public class ProcessingApplication extends PApplet {
 		super();
 		queens = new HashSet<List<Integer>>();
 		mainMenu = true;
+		mainMenuChooseSize = false;
 		solver = new SolutionsWithProlog(SIZE, queens);
 	}
 
@@ -103,11 +124,25 @@ public class ProcessingApplication extends PApplet {
 		quitButton = new ProcessingButton(this, width / 2 - 100, 300, "Quit");
 		nextButton = new ProcessingButton(this, width - 100, 50, "Next");
 		prevButton = new ProcessingButton(this, 20, 50, "Prev");
+		
+		chooseLabel = new ProcessingLabel(this, width / 2 - 100, 250, "Choose Size:");
+		chooseSize4Button = new ProcessingButton(this, width / 2 - 300, 300, "4x4");
+		chooseSize8Button = new ProcessingButton(this, width / 2 - 200, 300, "8x8");   
+		chooseSize10Button = new ProcessingButton(this, width / 2 - 100, 300, "10x10");
+		chooseSize16Button = new ProcessingButton(this, width / 2, 300, "16x16");
+		chooseSizeUserButton = new ProcessingButton(this, width / 2 + 100, 300,150, 45, "Enter Size");
 
-		startButton.onClick(startSolutionAction);
+		startButton.onClick(startAction);
 		quitButton.onClick(quitAction);
 		nextButton.onClick(nextAction);
 		prevButton.onClick(prevAction);
+		
+		
+//		chooseSize4Button.onClick(showSolutionsAction); 
+//		chooseSize8Button 
+//		chooseSize10Button
+//		chooseSize16Button
+//		chooseSizeUserButton
 	}
 
 	public void draw() {
@@ -129,7 +164,17 @@ public class ProcessingApplication extends PApplet {
 	}
 
 	private void drawMainMenu() {
-		startButton.draw();
+		if (mainMenuChooseSize) {
+			chooseLabel.draw();
+			chooseSize4Button.draw();
+			chooseSize8Button.draw();
+			chooseSize10Button.draw();
+			chooseSize16Button.draw();
+			chooseSizeUserButton.draw();
+			quitButton.setButtonY(400);
+		} else {
+			startButton.draw();
+		}
 		quitButton.draw();
 	}
 
@@ -226,15 +271,15 @@ public class ProcessingApplication extends PApplet {
 			return Arrays.asList(tempX, tempY);
 		}
 	}
-	
+
 	private Set<List<Integer>> getProcessingIndexFromPrologIndex(List<Integer> solution) {
-		Set<List<Integer>> indices  = new HashSet<List<Integer>>();
+		Set<List<Integer>> indices = new HashSet<List<Integer>>();
 		for (Integer integer : solution) {
 			ArrayList<Integer> tempIndex = new ArrayList<Integer>();
 			tempIndex.add(solution.indexOf(integer));
 			tempIndex.add(integer);
 			indices.add(tempIndex);
-		} 
+		}
 		return indices;
 	}
 

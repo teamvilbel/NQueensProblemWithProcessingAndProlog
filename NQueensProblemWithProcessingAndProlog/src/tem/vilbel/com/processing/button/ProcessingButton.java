@@ -8,7 +8,7 @@ import processing.core.PApplet;
  *
  * @created 13.12.2019
  */
-public class ProcessingButton {
+public class ProcessingButton extends ProcessingGui{
 	// Basic colors for the buttons 2 themes are available.
 	/** Light highlight color for the button */
 	public static int HILI_COLOR_L = 0xa0e8af;
@@ -24,9 +24,6 @@ public class ProcessingButton {
 	
 	/** BLACK */
 	public static int BLACK = 0x0;
-
-	/** Reference to the processing sketch */
-	private PApplet pa;
 
 	/** Position of the button */
 	private int buttonX, buttonY; 
@@ -65,8 +62,7 @@ public class ProcessingButton {
 	 */
 	private ProcessingButton(PApplet pa, int buttonX, int buttonY, int buttonSizeX, int buttonSizeY, String buttonText,
 			float textSize, int baseColor, int outlineColor, int highlightColor, IProcessingButtonAction onClick) {
-		super();
-		this.pa = pa;
+		super(pa);
 		this.buttonX = buttonX;
 		this.buttonY = buttonY;
 		this.buttonSizeX = buttonSizeX;
@@ -174,16 +170,6 @@ public class ProcessingButton {
 	 */
 	boolean overButton() {
 		return overRect(buttonX, buttonY, buttonSizeX, buttonSizeY);
-	}
-
-	/**
-	 * Transfers a HEX RGB value into the processing color value.
-	 * 
-	 * @param color a RGB-Color as int representation from the HEX-Value  
-	 * @return the color as Processing color int
-	 */
-	int toProcessingColor(int color) {
-		return this.pa.color(this.pa.red(color), this.pa.green(color), this.pa.blue(color));
 	}
 
 	/**
