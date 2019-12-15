@@ -51,13 +51,37 @@ public class ProcessingApplication extends PApplet {
 	private boolean mainMenu;
 	private boolean mainMenuChooseSize;
 
-	private IProcessingButtonAction showSolutionsAction = new IProcessingButtonAction() {
-
+	private IProcessingButtonAction showSolutions4Action = new IProcessingButtonAction() {
 		@Override
 		public void doAction() {
-			solver = new SolutionsWithProlog(SIZE, queens);
-			solutions = solver.solve();
-			queens = getProcessingIndexFromPrologIndex(solutions.get(solutionIndex));
+			SIZE = 4;
+			ProcessingApplication.this.goToBoard();
+		}
+	};
+	private IProcessingButtonAction showSolutions8Action = new IProcessingButtonAction() {
+		@Override
+		public void doAction() {
+			SIZE = 8;
+			ProcessingApplication.this.goToBoard();
+		}
+	};
+	private IProcessingButtonAction showSolutions10Action = new IProcessingButtonAction() {
+		@Override
+		public void doAction() {
+			SIZE = 10;
+			ProcessingApplication.this.goToBoard();
+		}
+	};
+	private IProcessingButtonAction showSolutions16Action = new IProcessingButtonAction() {
+		@Override
+		public void doAction() {
+			SIZE = 16;
+			ProcessingApplication.this.goToBoard();
+		}
+	};
+	private IProcessingButtonAction showSolutionsUserAction = new IProcessingButtonAction() {
+		@Override
+		public void doAction() {
 		}
 	};
 
@@ -108,7 +132,6 @@ public class ProcessingApplication extends PApplet {
 	};
 
 	public ProcessingApplication() {
-		super();
 		queens = new HashSet<List<Integer>>();
 		mainMenu = true;
 		mainMenuChooseSize = false;
@@ -138,11 +161,11 @@ public class ProcessingApplication extends PApplet {
 		prevButton.onClick(prevAction);
 		
 		
-//		chooseSize4Button.onClick(showSolutionsAction); 
-//		chooseSize8Button 
-//		chooseSize10Button
-//		chooseSize16Button
-//		chooseSizeUserButton
+		chooseSize4Button.onClick(showSolutions4Action); 
+		chooseSize8Button.onClick(showSolutions8Action); 
+		chooseSize10Button.onClick(showSolutions10Action);
+		chooseSize16Button.onClick(showSolutions16Action);
+		chooseSizeUserButton.onClick(showSolutionsUserAction);
 	}
 
 	public void draw() {
@@ -151,7 +174,7 @@ public class ProcessingApplication extends PApplet {
 			drawMainMenu();
 		} else {
 			drawField();
-			drawQueenTrail();
+//			drawQueenTrail();
 			prevButton.draw();
 			nextButton.draw();
 
@@ -230,6 +253,8 @@ public class ProcessingApplication extends PApplet {
 			for (int j = 0; j < SIZE; j++) {
 				int tempX = i * SQUARE_SIZE + X_OFF;
 				int tempY = j * SQUARE_SIZE + Y_OFF;
+				System.out.println(i);
+				System.out.println(j);
 				if ((i + j) % 2 == 0) {
 					fill(0);
 					rect(tempX, tempY, SQUARE_SIZE, SQUARE_SIZE);
@@ -246,6 +271,13 @@ public class ProcessingApplication extends PApplet {
 		if (mainMenu) {
 			startButton.mousePressed();
 			quitButton.mousePressed();
+			if (mainMenuChooseSize) {
+				chooseSize4Button.mousePressed();       
+				chooseSize8Button.mousePressed();       
+				chooseSize10Button.mousePressed();      
+				chooseSize16Button.mousePressed();      
+				chooseSizeUserButton.mousePressed();    
+			}
 		} else {
 			List<Integer> index = getChessTileFromMouse(mouseX, mouseY);
 			System.out.println("Chess tile index " + Arrays.toString(index.toArray()));
@@ -277,10 +309,20 @@ public class ProcessingApplication extends PApplet {
 		for (Integer integer : solution) {
 			ArrayList<Integer> tempIndex = new ArrayList<Integer>();
 			tempIndex.add(solution.indexOf(integer));
-			tempIndex.add(integer);
+			tempIndex.add(integer - 1);
 			indices.add(tempIndex);
 		}
 		return indices;
+	}
+
+	/**
+	 * 
+	 */
+	private void goToBoard() {
+		solver = new SolutionsWithProlog(SIZE, queens);
+		solutions = solver.solve();
+		queens = getProcessingIndexFromPrologIndex(solutions.get(solutionIndex));
+		mainMenu = false;
 	}
 
 	public static void startApp() {
