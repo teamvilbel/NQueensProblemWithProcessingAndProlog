@@ -271,12 +271,13 @@ public class ProcessingApplication extends PApplet {
 		if (mainMenu) {
 			startButton.mousePressed();
 			quitButton.mousePressed();
-		}else if (mainMenuChooseSize) {
+			if (mainMenuChooseSize) {
 				chooseSize4Button.mousePressed();       
 				chooseSize8Button.mousePressed();       
 				chooseSize10Button.mousePressed();      
 				chooseSize16Button.mousePressed();      
-				chooseSizeUserButton.mousePressed();    
+				chooseSizeUserButton.mousePressed(); 
+			}
 		} else {
 			List<Integer> index = getChessTileFromMouse(mouseX, mouseY);
 			System.out.println("Chess tile index " + Arrays.toString(index.toArray()));
@@ -322,6 +323,7 @@ public class ProcessingApplication extends PApplet {
 		solutions = solver.solve();
 		queens = getProcessingIndexFromPrologIndex(solutions.get(solutionIndex));
 		mainMenu = false;
+		mainMenuChooseSize = false;
 	}
 
 	public static void startApp() {
