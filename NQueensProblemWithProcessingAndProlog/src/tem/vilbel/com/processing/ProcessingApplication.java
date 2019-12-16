@@ -253,8 +253,6 @@ public class ProcessingApplication extends PApplet {
 			for (int j = 0; j < SIZE; j++) {
 				int tempX = i * SQUARE_SIZE + X_OFF;
 				int tempY = j * SQUARE_SIZE + Y_OFF;
-				System.out.println(i);
-				System.out.println(j);
 				if ((i + j) % 2 == 0) {
 					fill(0);
 					rect(tempX, tempY, SQUARE_SIZE, SQUARE_SIZE);
