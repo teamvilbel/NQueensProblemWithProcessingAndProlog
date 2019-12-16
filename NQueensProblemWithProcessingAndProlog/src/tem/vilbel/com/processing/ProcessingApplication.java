@@ -40,6 +40,7 @@ public class ProcessingApplication extends PApplet {
 	private ProcessingButton quitButton;
 	private ProcessingButton nextButton;
 	private ProcessingButton prevButton;
+	private ProcessingButton solveButton;
 
 	private ProcessingLabel chooseLabel;
 	private ProcessingButton chooseSize4Button;
@@ -82,6 +83,11 @@ public class ProcessingApplication extends PApplet {
 	private IProcessingButtonAction showSolutionsUserAction = new IProcessingButtonAction() {
 		@Override
 		public void doAction() {
+			SIZE = 10;
+//			solver = new SolutionsWithProlog(SIZE, queens);
+//			solutions = solver.solve();
+			mainMenu = false;
+			mainMenuChooseSize = false;
 		}
 	};
 
@@ -174,7 +180,7 @@ public class ProcessingApplication extends PApplet {
 			drawMainMenu();
 		} else {
 			drawField();
-//			drawQueenTrail();
+			drawQueenTrail();
 			prevButton.draw();
 			nextButton.draw();
 
