@@ -83,11 +83,13 @@ public class ProcessingApplication extends PApplet {
 	private IProcessingButtonAction showSolutionsUserAction = new IProcessingButtonAction() {
 		@Override
 		public void doAction() {
-			SIZE = 10;
+			ProcessingApplication.this.SIZE = 10;
+			solveButton = new ProcessingButton(ProcessingApplication.this, ProcessingApplication.this.width / 2 - 45, ProcessingApplication.this.SQUARE_SIZE * ProcessingApplication.this.SIZE + 2 *Y_OFF, "SOLVE");
 //			solver = new SolutionsWithProlog(SIZE, queens);
 //			solutions = solver.solve();
 			mainMenu = false;
 			mainMenuChooseSize = false;
+			allowUserInput = true;
 		}
 	};
 
@@ -137,6 +139,8 @@ public class ProcessingApplication extends PApplet {
 		}
 	};
 
+	private boolean allowUserInput = false;
+
 	public ProcessingApplication() {
 		queens = new HashSet<List<Integer>>();
 		mainMenu = true;
@@ -183,6 +187,10 @@ public class ProcessingApplication extends PApplet {
 			drawQueenTrail();
 			prevButton.draw();
 			nextButton.draw();
+			
+			if(allowUserInput) {
+				solveButton.draw();
+			}
 
 			// Draw queens
 			for (List<Integer> index : queens) {
@@ -290,6 +298,9 @@ public class ProcessingApplication extends PApplet {
 			}
 			nextButton.mousePressed();
 			prevButton.mousePressed();
+			if(allowUserInput) {
+				solveButton.mousePressed();
+			}
 		}
 	}
 
