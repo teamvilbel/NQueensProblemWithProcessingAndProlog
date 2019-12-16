@@ -84,7 +84,7 @@ public class ProcessingApplication extends PApplet {
 	private IProcessingButtonAction showSolutionsUserAction = new IProcessingButtonAction() {
 		@Override
 		public void doAction() {
-			ProcessingApplication.this.SIZE = 10;
+			ProcessingApplication.this.SIZE = 8;
 			solveButton = new ProcessingButton(ProcessingApplication.this, ProcessingApplication.this.width / 2 - 45, ProcessingApplication.this.SQUARE_SIZE * ProcessingApplication.this.SIZE + 2 *Y_OFF, "SOLVE");
 //			solver = new SolutionsWithProlog(SIZE, queens);
 //			solutions = solver.solve();
@@ -115,6 +115,7 @@ public class ProcessingApplication extends PApplet {
 		@Override
 		public void doAction() {
 			mainMenu = true;
+			queens.clear();
 		}
 	};
 	private IProcessingButtonAction nextAction = new IProcessingButtonAction() {
@@ -160,7 +161,7 @@ public class ProcessingApplication extends PApplet {
 	public void settings() {
 		size(1000, 1000);
 //		fullScreen();
-		img = loadImage("./resources/Chess_queen_icon.png", "png");
+		img = loadImage("./NQueensProblemWithProcessingAndProlog/resources/Chess_queen_icon.png", "png");
 
 		startButton = new ProcessingButton(this, width / 2 - 100, 200, "Start");
 		quitButton = new ProcessingButton(this, width / 2 - 100, 300, "Quit");
@@ -237,38 +238,46 @@ public class ProcessingApplication extends PApplet {
 				rect(i * SQUARE_SIZE + X_OFF, tempY, SQUARE_SIZE, SQUARE_SIZE);
 				rect(tempX, i * SQUARE_SIZE + Y_OFF, SQUARE_SIZE, SQUARE_SIZE);
 			}
-			// Diagolnal
+			// diagonal
 			fill(64);
+			final int size_official = SIZE - 1;
 			int temp_ix = index.get(0);
 			int temp_iy = index.get(1);
-			while (temp_ix != 0 && temp_iy != 0) {
-				temp_ix--;
-				temp_iy--;
+			int x_cord_diaPosStart = temp_ix;
+			int x_cord_diaNegStart = temp_ix;
+			int y_cord_diaPosStart = temp_iy;
+			int y_cord_diaNegStart = temp_iy;
+			
+			// get first positive coordinate for diagonal
+			while(y_cord_diaPosStart > 0 && x_cord_diaPosStart > 0)
+			{
+				x_cord_diaPosStart--;
+				y_cord_diaPosStart--;
 			}
-
-			while (temp_ix != SIZE && temp_iy != SIZE) {
-				int tempX = temp_ix * SQUARE_SIZE + X_OFF;
-				int tempY = temp_iy * SQUARE_SIZE + Y_OFF;
-				rect(tempX, tempY, SQUARE_SIZE, SQUARE_SIZE);
-				temp_ix++;
-				temp_iy++;
+			
+			// get first negative coordinate for diagonal
+			while(y_cord_diaNegStart < size_official && x_cord_diaNegStart > 0)
+			{
+				x_cord_diaNegStart--;
+				y_cord_diaNegStart++;
 			}
-
-			temp_ix = index.get(0);
-			temp_iy = index.get(1);
-			while (temp_ix > SIZE && temp_iy != 0) {
-				temp_ix++;
-				temp_iy--;
+			
+			// show positive diagonal
+			while (y_cord_diaPosStart >= 0 && x_cord_diaPosStart <= size_official && y_cord_diaPosStart <= size_official) {
+				int tempX = x_cord_diaPosStart * SQUARE_SIZE + X_OFF;
+				int tempYPos = y_cord_diaPosStart * SQUARE_SIZE + Y_OFF;
+				rect(tempX, tempYPos, SQUARE_SIZE, SQUARE_SIZE);
+				y_cord_diaPosStart++;
+				x_cord_diaPosStart++;
 			}
-
-			while (temp_ix >= 0 && temp_iy != SIZE) {
-				int tempX = temp_ix * SQUARE_SIZE + X_OFF;
-				int tempY = temp_iy * SQUARE_SIZE + Y_OFF;
-				rect(tempX, tempY, SQUARE_SIZE, SQUARE_SIZE);
-				temp_ix--;
-				temp_iy++;
+			// show negative diagonal
+			while (y_cord_diaNegStart <= size_official && x_cord_diaNegStart <= size_official && y_cord_diaNegStart >= 0) {
+				int tempX = x_cord_diaNegStart * SQUARE_SIZE + X_OFF;
+				int tempYNeg = y_cord_diaNegStart * SQUARE_SIZE + Y_OFF;
+				rect(tempX, tempYNeg, SQUARE_SIZE, SQUARE_SIZE);
+				y_cord_diaNegStart--;
+				x_cord_diaNegStart++;
 			}
-
 		}
 
 	}
