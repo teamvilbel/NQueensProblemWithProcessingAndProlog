@@ -86,11 +86,23 @@ public class ProcessingApplication extends PApplet {
 		public void doAction() {
 			ProcessingApplication.this.SIZE = 8;
 			solveButton = new ProcessingButton(ProcessingApplication.this, ProcessingApplication.this.width / 2 - 45, ProcessingApplication.this.SQUARE_SIZE * ProcessingApplication.this.SIZE + 2 *Y_OFF, "SOLVE");
-//			solver = new SolutionsWithProlog(SIZE, queens);
+			solveButton.onClick(solveAction);
+			//			solver = new SolutionsWithProlog(SIZE, queens);
 //			solutions = solver.solve();
 			mainMenu = false;
 			mainMenuChooseSize = false;
 			allowUserInput = true;
+		}
+	};
+	
+	private IProcessingButtonAction solveAction = new IProcessingButtonAction() {
+		@Override
+		public void doAction() {
+			solver = new SolutionsWithProlog(SIZE, queens);
+			solutions = solver.solve(queens);
+			solutionIndex = 0;
+			// TODO: leere Liste check!!!! JP MACHEN !!!!
+			queens = getProcessingIndexFromPrologIndex(solutions.get(solutionIndex));
 		}
 	};
 
@@ -174,13 +186,14 @@ public class ProcessingApplication extends PApplet {
 		chooseSize8Button = new ProcessingButton(this, width / 2 - 200, 300, "8x8");   
 		chooseSize10Button = new ProcessingButton(this, width / 2 - 100, 300, "10x10");
 		chooseSize16Button = new ProcessingButton(this, width / 2, 300, "16x16");
-		chooseSizeUserButton = new ProcessingButton(this, width / 2 + 100, 300,150, 45, "Enter Size");
+		chooseSizeUserButton = new ProcessingButton(this, width / 2 + 100, 300,150, 45, "User Input");
 
 		startButton.onClick(startAction);
 		quitButton.onClick(quitAction);
 		nextButton.onClick(nextAction);
 		prevButton.onClick(prevAction);
 		backButton.onClick(backAction);
+	
 		
 		
 		chooseSize4Button.onClick(showSolutions4Action); 
@@ -229,6 +242,7 @@ public class ProcessingApplication extends PApplet {
 	}
 
 	private void drawQueenTrail() {
+		Set<List<Integer>> coordinates = new HashSet<List<Integer>>();
 		for (List<Integer> index : queens) {
 			// Horizontal und vertikal
 			for (int i = 0; i < SIZE; i++) {
