@@ -41,6 +41,7 @@ public class ProcessingApplication extends PApplet {
 	private ProcessingButton nextButton;
 	private ProcessingButton prevButton;
 	private ProcessingButton solveButton;
+	private ProcessingButton backButton;
 
 	private ProcessingLabel chooseLabel;
 	private ProcessingButton chooseSize4Button;
@@ -108,6 +109,14 @@ public class ProcessingApplication extends PApplet {
 			ProcessingApplication.this.exit();
 		}
 	};
+
+	private IProcessingButtonAction backAction = new IProcessingButtonAction() {
+		
+		@Override
+		public void doAction() {
+			mainMenu = true;
+		}
+	};
 	private IProcessingButtonAction nextAction = new IProcessingButtonAction() {
 
 		@Override
@@ -157,6 +166,7 @@ public class ProcessingApplication extends PApplet {
 		quitButton = new ProcessingButton(this, width / 2 - 100, 300, "Quit");
 		nextButton = new ProcessingButton(this, width - 100, 50, "Next");
 		prevButton = new ProcessingButton(this, 20, 50, "Prev");
+		backButton = new ProcessingButton(this, width / 2 - 45, SQUARE_SIZE * SIZE + 300, "Back");
 		
 		chooseLabel = new ProcessingLabel(this, width / 2 - 100, 250, "Choose Size:");
 		chooseSize4Button = new ProcessingButton(this, width / 2 - 300, 300, "4x4");
@@ -169,6 +179,7 @@ public class ProcessingApplication extends PApplet {
 		quitButton.onClick(quitAction);
 		nextButton.onClick(nextAction);
 		prevButton.onClick(prevAction);
+		backButton.onClick(backAction);
 		
 		
 		chooseSize4Button.onClick(showSolutions4Action); 
@@ -187,6 +198,7 @@ public class ProcessingApplication extends PApplet {
 			drawQueenTrail();
 			prevButton.draw();
 			nextButton.draw();
+			backButton.draw();
 			
 			if(allowUserInput) {
 				solveButton.draw();
@@ -298,6 +310,7 @@ public class ProcessingApplication extends PApplet {
 			}
 			nextButton.mousePressed();
 			prevButton.mousePressed();
+			backButton.mousePressed();
 			if(allowUserInput) {
 				solveButton.mousePressed();
 			}
