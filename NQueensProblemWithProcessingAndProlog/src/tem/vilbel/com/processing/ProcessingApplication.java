@@ -2,8 +2,10 @@ package tem.vilbel.com.processing;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.jpl7.fli.qid_t;
@@ -34,6 +36,7 @@ public class ProcessingApplication extends PApplet {
 	private List<List<Integer>> solutions;
 	private int solutionIndex = 0;
 	private Set<List<Integer>> queens;
+	private Map<List<Integer>,List<QueenPosition>> queenLines;
 
 	private PImage img;
 	private ProcessingButton startButton;
@@ -128,6 +131,7 @@ public class ProcessingApplication extends PApplet {
 		public void doAction() {
 			mainMenu = true;
 			queens.clear();
+			queenLines.clear();
 		}
 	};
 	private IProcessingButtonAction nextAction = new IProcessingButtonAction() {
@@ -165,6 +169,7 @@ public class ProcessingApplication extends PApplet {
 
 	public ProcessingApplication() {
 		queens = new HashSet<List<Integer>>();
+		queenLines = new HashMap<List<Integer>, List<QueenPosition>>();
 		mainMenu = true;
 		mainMenuChooseSize = false;
 		solver = new SolutionsWithProlog(SIZE, queens);
@@ -242,13 +247,15 @@ public class ProcessingApplication extends PApplet {
 	}
 
 	private void drawQueenTrail() {
-		Set<List<Integer>> coordinates = new HashSet<List<Integer>>();
 		for (List<Integer> index : queens) {
+			List<QueenPosition> tempLines = new ArrayList<QueenPosition>();
 			// Horizontal und vertikal
 			for (int i = 0; i < SIZE; i++) {
 				fill(64);
 				int tempX = index.get(0) * SQUARE_SIZE + X_OFF;
 				int tempY = index.get(1) * SQUARE_SIZE + Y_OFF;
+				tempLines.add(new QueenPosition(i , index.get(1)));
+				tempLines.add(new QueenPosition(index.get(0), i ));
 				rect(i * SQUARE_SIZE + X_OFF, tempY, SQUARE_SIZE, SQUARE_SIZE);
 				rect(tempX, i * SQUARE_SIZE + Y_OFF, SQUARE_SIZE, SQUARE_SIZE);
 			}
@@ -280,6 +287,7 @@ public class ProcessingApplication extends PApplet {
 			while (y_cord_diaPosStart >= 0 && x_cord_diaPosStart <= size_official && y_cord_diaPosStart <= size_official) {
 				int tempX = x_cord_diaPosStart * SQUARE_SIZE + X_OFF;
 				int tempYPos = y_cord_diaPosStart * SQUARE_SIZE + Y_OFF;
+				tempLines.add(new QueenPosition(x_cord_diaPosStart, y_cord_diaPosStart));
 				rect(tempX, tempYPos, SQUARE_SIZE, SQUARE_SIZE);
 				y_cord_diaPosStart++;
 				x_cord_diaPosStart++;
@@ -288,12 +296,59 @@ public class ProcessingApplication extends PApplet {
 			while (y_cord_diaNegStart <= size_official && x_cord_diaNegStart <= size_official && y_cord_diaNegStart >= 0) {
 				int tempX = x_cord_diaNegStart * SQUARE_SIZE + X_OFF;
 				int tempYNeg = y_cord_diaNegStart * SQUARE_SIZE + Y_OFF;
+				tempLines.add(new QueenPosition(x_cord_diaNegStart, y_cord_diaNegStart));
 				rect(tempX, tempYNeg, SQUARE_SIZE, SQUARE_SIZE);
 				y_cord_diaNegStart--;
 				x_cord_diaNegStart++;
 			}
+			queenLines.put(index, tempLines);
 		}
 
+	}
+	
+	private List<QueenPosition> getAllLines(List<Integer> index) {
+		List<QueenPosition> tempList = new ArrayList<QueenPosition>();
+		
+			// Horizontal und vertikal
+			for (int i = 0; i < SIZE; i++) {
+				tempList.add(new QueenPosition(i , index.get(1)));
+				tempList.add(new QueenPosition(index.get(0), i ));
+			}
+			// diagonal
+			final int size_official = SIZE - 1;
+			int x_cord_diaPosStart = index.get(0);
+			int x_cord_diaNegStart = index.get(0);
+			int y_cord_diaPosStart = index.get(1);
+			int y_cord_diaNegStart = index.get(1);
+			
+			// get first positive coordinate for diagonal
+			while(y_cord_diaPosStart > 0 && x_cord_diaPosStart > 0)
+			{
+				x_cord_diaPosStart--;
+				y_cord_diaPosStart--;
+			}
+			
+			// get first negative coordinate for diagonal
+			while(y_cord_diaNegStart < size_official && x_cord_diaNegStart > 0)
+			{
+				x_cord_diaNegStart--;
+				y_cord_diaNegStart++;
+			}
+			
+			// show positive diagonal
+			while (y_cord_diaPosStart >= 0 && x_cord_diaPosStart <= size_official && y_cord_diaPosStart <= size_official) {
+				tempList.add(new QueenPosition(x_cord_diaPosStart, y_cord_diaPosStart));
+				y_cord_diaPosStart++;
+				x_cord_diaPosStart++;
+			}
+			// show negative diagonal
+			while (y_cord_diaNegStart <= size_official && x_cord_diaNegStart <= size_official && y_cord_diaNegStart >= 0) {
+				tempList.add(new QueenPosition(x_cord_diaNegStart, y_cord_diaNegStart));
+				y_cord_diaNegStart--;
+				x_cord_diaNegStart++;
+			}
+		
+		return tempList;
 	}
 
 	private void drawField() {
@@ -328,9 +383,52 @@ public class ProcessingApplication extends PApplet {
 		} else {
 			List<Integer> index = getChessTileFromMouse(mouseX, mouseY);
 			System.out.println("Chess tile index " + Arrays.toString(index.toArray()));
-			if (index.get(0) >= 0 && index.get(1) >= 0) {
-				queens.add(index);
+			List<Integer> tempIndex = new ArrayList<Integer>();
+			boolean queenRemoved = false;
+			for (List<Integer> indexOfQueens : queens) {
+				if(index.get(0)==indexOfQueens.get(0) && index.get(1) == indexOfQueens.get(1))
+				{
+					tempIndex = indexOfQueens;
+				}
 			}
+			if(!tempIndex.isEmpty())
+			{
+				queens.remove(tempIndex);
+				List<Integer> tempQueen = new ArrayList<Integer>();
+				for(List<Integer> qu : queenLines.keySet())
+				{
+					if(tempIndex.get(0) == qu.get(0) && tempIndex.get(1) == qu.get(1))
+					{
+						tempQueen = qu;
+					}
+				}
+				queenLines.remove(tempQueen);
+				queenRemoved= true;
+			}
+			if(!queenRemoved)
+			{
+				boolean freeSpace = true;
+				for(Map.Entry<List<Integer>, List<QueenPosition>> pair : queenLines.entrySet())
+				{
+					for(QueenPosition position : pair.getValue())
+					{
+						if (index.get(0) >= 0 && index.get(1) >= 0) {
+							if(position.getxPosition() == index.get(0) && position.getyPosition() == index.get(1))
+							{
+								freeSpace = false;
+							}
+						}
+					}			
+				}
+				if(freeSpace)
+				{
+					queens.add(index);	
+				}
+				else
+				{
+					System.out.println("Not a free index for a queen " + Arrays.toString(index.toArray()));
+				}
+			}	
 			nextButton.mousePressed();
 			prevButton.mousePressed();
 			backButton.mousePressed();
