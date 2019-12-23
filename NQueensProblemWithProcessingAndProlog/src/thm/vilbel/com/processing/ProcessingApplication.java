@@ -59,11 +59,13 @@ public class ProcessingApplication extends PApplet {
 
 	private boolean mainMenu;
 	private boolean mainMenuChooseSize;
+	private boolean disableQueenDeletion;
 
 	private IProcessingButtonAction showSolutions4Action = new IProcessingButtonAction() {
 		@Override
 		public void doAction() {
 			SIZE = 4;
+			disableQueenDeletion = true;
 			ProcessingApplication.this.goToBoard();
 		}
 	};
@@ -71,6 +73,7 @@ public class ProcessingApplication extends PApplet {
 		@Override
 		public void doAction() {
 			SIZE = 8;
+			disableQueenDeletion = true;
 			ProcessingApplication.this.goToBoard();
 		}
 	};
@@ -78,6 +81,7 @@ public class ProcessingApplication extends PApplet {
 		@Override
 		public void doAction() {
 			SIZE = 10;
+			disableQueenDeletion = true;
 			ProcessingApplication.this.goToBoard();
 		}
 	};
@@ -85,12 +89,14 @@ public class ProcessingApplication extends PApplet {
 		@Override
 		public void doAction() {
 			SIZE = 16;
+			disableQueenDeletion = true;
 			ProcessingApplication.this.goToBoard();
 		}
 	};
 	private IProcessingButtonAction showSolutionsUserAction = new IProcessingButtonAction() {
 		@Override
 		public void doAction() {
+			disableQueenDeletion = false;
 			ProcessingApplication.this.SIZE = 8;
 			solveButton = new ProcessingButton(ProcessingApplication.this, ProcessingApplication.this.width / 2 - 45,
 					ProcessingApplication.this.SQUARE_SIZE * ProcessingApplication.this.SIZE + 2 * Y_OFF, "SOLVE");
@@ -106,11 +112,13 @@ public class ProcessingApplication extends PApplet {
 	private IProcessingButtonAction solveAction = new IProcessingButtonAction() {
 		@Override
 		public void doAction() {
+			disableQueenDeletion = true;
 			solver = new SolutionsWithProlog(SIZE, queens);
 			solutions = solver.solve(queens);
 			solutionIndex = 0;
 			if (solutions.isEmpty()) {
 				alertNoSolution.resetAlert();
+				disableQueenDeletion = false;
 			} else {
 				queens = getProcessingIndexFromPrologIndex(solutions.get(solutionIndex));
 			}
@@ -137,6 +145,7 @@ public class ProcessingApplication extends PApplet {
 
 		@Override
 		public void doAction() {
+			disableQueenDeletion = true;
 			mainMenu = true;
 			queens.clear();
 			queenLines.clear();
@@ -180,13 +189,14 @@ public class ProcessingApplication extends PApplet {
 		queenLines = new HashMap<List<Integer>, List<QueenPosition>>();
 		mainMenu = true;
 		mainMenuChooseSize = false;
+		disableQueenDeletion = true;
 		solver = new SolutionsWithProlog(SIZE, queens);
 	}
 
 	public void settings() {
 		size(1000, 1000);
 //		fullScreen();
-		img = loadImage("./resources/Chess_queen_icon.png", "png");
+		img = loadImage("./NQueensProblemWithProcessingAndProlog/resources/Chess_queen_icon.png", "png");
 
 		startButton = new ProcessingButton(this, width / 2 - 100, 200, "Start");
 		quitButton = new ProcessingButton(this, width / 2 - 100, 300, "Quit");
@@ -392,42 +402,44 @@ public class ProcessingApplication extends PApplet {
 		} else {
 			List<Integer> index = getChessTileFromMouse(mouseX, mouseY);
 			System.out.println("Chess tile index " + Arrays.toString(index.toArray()));
-			if (index.get(0) != -1 && index.get(1) != -1) {
+			if(!disableQueenDeletion) {
+				if (index.get(0) != -1 && index.get(1) != -1) {
 
-				List<Integer> tempIndex = new ArrayList<Integer>();
-				boolean queenRemoved = false;
-				for (List<Integer> indexOfQueens : queens) {
-					if (index.get(0) == indexOfQueens.get(0) && index.get(1) == indexOfQueens.get(1)) {
-						tempIndex = indexOfQueens;
-					}
-				}
-				if (!tempIndex.isEmpty()) {
-					queens.remove(tempIndex);
-					List<Integer> tempQueen = new ArrayList<Integer>();
-					for (List<Integer> qu : queenLines.keySet()) {
-						if (tempIndex.get(0) == qu.get(0) && tempIndex.get(1) == qu.get(1)) {
-							tempQueen = qu;
+					List<Integer> tempIndex = new ArrayList<Integer>();
+					boolean queenRemoved = false;
+					for (List<Integer> indexOfQueens : queens) {
+						if (index.get(0) == indexOfQueens.get(0) && index.get(1) == indexOfQueens.get(1)) {
+							tempIndex = indexOfQueens;
 						}
 					}
-					queenLines.remove(tempQueen);
-					queenRemoved = true;
-				}
-				if (!queenRemoved) {
-					boolean freeSpace = true;
-					for (Map.Entry<List<Integer>, List<QueenPosition>> pair : queenLines.entrySet()) {
-						for (QueenPosition position : pair.getValue()) {
-							if (index.get(0) >= 0 && index.get(1) >= 0) {
-								if (position.getxPosition() == index.get(0)
-										&& position.getyPosition() == index.get(1)) {
-									freeSpace = false;
+					if (!tempIndex.isEmpty()) {
+						queens.remove(tempIndex);
+						List<Integer> tempQueen = new ArrayList<Integer>();
+						for (List<Integer> qu : queenLines.keySet()) {
+							if (tempIndex.get(0) == qu.get(0) && tempIndex.get(1) == qu.get(1)) {
+								tempQueen = qu;
+							}
+						}
+						queenLines.remove(tempQueen);
+						queenRemoved = true;
+					}
+					if (!queenRemoved) {
+						boolean freeSpace = true;
+						for (Map.Entry<List<Integer>, List<QueenPosition>> pair : queenLines.entrySet()) {
+							for (QueenPosition position : pair.getValue()) {
+								if (index.get(0) >= 0 && index.get(1) >= 0) {
+									if (position.getxPosition() == index.get(0)
+											&& position.getyPosition() == index.get(1)) {
+										freeSpace = false;
+									}
 								}
 							}
 						}
-					}
-					if (freeSpace) {
-						queens.add(index);
-					} else {
-						System.out.println("Not a free index for a queen " + Arrays.toString(index.toArray()));
+						if (freeSpace) {
+							queens.add(index);
+						} else {
+							System.out.println("Not a free index for a queen " + Arrays.toString(index.toArray()));
+						}
 					}
 				}
 			}
