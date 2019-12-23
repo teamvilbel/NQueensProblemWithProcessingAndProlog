@@ -1,4 +1,4 @@
-package tem.vilbel.com.processing.button;
+package thm.vilbel.com.processing.button;
 
 import processing.core.PApplet;
 

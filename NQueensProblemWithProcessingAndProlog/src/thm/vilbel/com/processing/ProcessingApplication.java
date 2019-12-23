@@ -1,5 +1,6 @@
-package tem.vilbel.com.processing;
+package thm.vilbel.com.processing;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -12,10 +13,11 @@ import org.jpl7.fli.qid_t;
 
 import processing.core.PApplet;
 import processing.core.PImage;
-import tem.vilbel.com.processing.button.IProcessingButtonAction;
-import tem.vilbel.com.processing.button.ProcessingButton;
-import tem.vilbel.com.processing.button.ProcessingLabel;
-import tem.vilbel.com.prolog.SolutionsWithProlog;
+import thm.vilbel.com.processing.alert.ProcessingAlert;
+import thm.vilbel.com.processing.button.IProcessingButtonAction;
+import thm.vilbel.com.processing.button.ProcessingButton;
+import thm.vilbel.com.processing.button.ProcessingLabel;
+import thm.vilbel.com.prolog.SolutionsWithProlog;
 
 /**
  * @author Noah Ruben
@@ -36,7 +38,7 @@ public class ProcessingApplication extends PApplet {
 	private List<List<Integer>> solutions;
 	private int solutionIndex = 0;
 	private Set<List<Integer>> queens;
-	private Map<List<Integer>,List<QueenPosition>> queenLines;
+	private Map<List<Integer>, List<QueenPosition>> queenLines;
 
 	private PImage img;
 	private ProcessingButton startButton;
@@ -52,6 +54,8 @@ public class ProcessingApplication extends PApplet {
 	private ProcessingButton chooseSize10Button;
 	private ProcessingButton chooseSize16Button;
 	private ProcessingButton chooseSizeUserButton;
+
+	private ProcessingAlert alertNoSolution;
 
 	private boolean mainMenu;
 	private boolean mainMenuChooseSize;
@@ -88,24 +92,28 @@ public class ProcessingApplication extends PApplet {
 		@Override
 		public void doAction() {
 			ProcessingApplication.this.SIZE = 8;
-			solveButton = new ProcessingButton(ProcessingApplication.this, ProcessingApplication.this.width / 2 - 45, ProcessingApplication.this.SQUARE_SIZE * ProcessingApplication.this.SIZE + 2 *Y_OFF, "SOLVE");
+			solveButton = new ProcessingButton(ProcessingApplication.this, ProcessingApplication.this.width / 2 - 45,
+					ProcessingApplication.this.SQUARE_SIZE * ProcessingApplication.this.SIZE + 2 * Y_OFF, "SOLVE");
 			solveButton.onClick(solveAction);
-			//			solver = new SolutionsWithProlog(SIZE, queens);
+			// solver = new SolutionsWithProlog(SIZE, queens);
 //			solutions = solver.solve();
 			mainMenu = false;
 			mainMenuChooseSize = false;
 			allowUserInput = true;
 		}
 	};
-	
+
 	private IProcessingButtonAction solveAction = new IProcessingButtonAction() {
 		@Override
 		public void doAction() {
 			solver = new SolutionsWithProlog(SIZE, queens);
 			solutions = solver.solve(queens);
 			solutionIndex = 0;
-			// TODO: leere Liste check!!!! JP MACHEN !!!!
-			queens = getProcessingIndexFromPrologIndex(solutions.get(solutionIndex));
+			if (solutions.isEmpty()) {
+				alertNoSolution.resetAlert();
+			} else {
+				queens = getProcessingIndexFromPrologIndex(solutions.get(solutionIndex));
+			}
 		}
 	};
 
@@ -126,7 +134,7 @@ public class ProcessingApplication extends PApplet {
 	};
 
 	private IProcessingButtonAction backAction = new IProcessingButtonAction() {
-		
+
 		@Override
 		public void doAction() {
 			mainMenu = true;
@@ -178,34 +186,36 @@ public class ProcessingApplication extends PApplet {
 	public void settings() {
 		size(1000, 1000);
 //		fullScreen();
-		img = loadImage("./NQueensProblemWithProcessingAndProlog/resources/Chess_queen_icon.png", "png");
+		img = loadImage("./resources/Chess_queen_icon.png", "png");
 
 		startButton = new ProcessingButton(this, width / 2 - 100, 200, "Start");
 		quitButton = new ProcessingButton(this, width / 2 - 100, 300, "Quit");
 		nextButton = new ProcessingButton(this, width - 100, 50, "Next");
 		prevButton = new ProcessingButton(this, 20, 50, "Prev");
 		backButton = new ProcessingButton(this, width / 2 - 45, SQUARE_SIZE * SIZE + 300, "Back");
-		
+
 		chooseLabel = new ProcessingLabel(this, width / 2 - 100, 250, "Choose Size:");
 		chooseSize4Button = new ProcessingButton(this, width / 2 - 300, 300, "4x4");
-		chooseSize8Button = new ProcessingButton(this, width / 2 - 200, 300, "8x8");   
+		chooseSize8Button = new ProcessingButton(this, width / 2 - 200, 300, "8x8");
 		chooseSize10Button = new ProcessingButton(this, width / 2 - 100, 300, "10x10");
 		chooseSize16Button = new ProcessingButton(this, width / 2, 300, "16x16");
-		chooseSizeUserButton = new ProcessingButton(this, width / 2 + 100, 300,150, 45, "User Input");
+		chooseSizeUserButton = new ProcessingButton(this, width / 2 + 100, 300, 150, 45, "User Input");
 
 		startButton.onClick(startAction);
 		quitButton.onClick(quitAction);
 		nextButton.onClick(nextAction);
 		prevButton.onClick(prevAction);
 		backButton.onClick(backAction);
-	
-		
-		
-		chooseSize4Button.onClick(showSolutions4Action); 
-		chooseSize8Button.onClick(showSolutions8Action); 
+
+		chooseSize4Button.onClick(showSolutions4Action);
+		chooseSize8Button.onClick(showSolutions8Action);
 		chooseSize10Button.onClick(showSolutions10Action);
 		chooseSize16Button.onClick(showSolutions16Action);
 		chooseSizeUserButton.onClick(showSolutionsUserAction);
+
+		alertNoSolution = new ProcessingAlert(this, 200, 200, 350, 100,
+				"There are no sulotions available\r\nfor this queen configuration!\r\nRedo your Queens.");
+
 	}
 
 	public void draw() {
@@ -218,8 +228,8 @@ public class ProcessingApplication extends PApplet {
 			prevButton.draw();
 			nextButton.draw();
 			backButton.draw();
-			
-			if(allowUserInput) {
+
+			if (allowUserInput) {
 				solveButton.draw();
 			}
 
@@ -228,6 +238,7 @@ public class ProcessingApplication extends PApplet {
 				image(img, index.get(0) * SQUARE_SIZE + X_OFF, index.get(1) * SQUARE_SIZE + Y_OFF, SQUARE_SIZE,
 						SQUARE_SIZE);
 			}
+			alertNoSolution.draw();
 		}
 	}
 
@@ -254,8 +265,8 @@ public class ProcessingApplication extends PApplet {
 				fill(64);
 				int tempX = index.get(0) * SQUARE_SIZE + X_OFF;
 				int tempY = index.get(1) * SQUARE_SIZE + Y_OFF;
-				tempLines.add(new QueenPosition(i , index.get(1)));
-				tempLines.add(new QueenPosition(index.get(0), i ));
+				tempLines.add(new QueenPosition(i, index.get(1)));
+				tempLines.add(new QueenPosition(index.get(0), i));
 				rect(i * SQUARE_SIZE + X_OFF, tempY, SQUARE_SIZE, SQUARE_SIZE);
 				rect(tempX, i * SQUARE_SIZE + Y_OFF, SQUARE_SIZE, SQUARE_SIZE);
 			}
@@ -268,23 +279,22 @@ public class ProcessingApplication extends PApplet {
 			int x_cord_diaNegStart = temp_ix;
 			int y_cord_diaPosStart = temp_iy;
 			int y_cord_diaNegStart = temp_iy;
-			
+
 			// get first positive coordinate for diagonal
-			while(y_cord_diaPosStart > 0 && x_cord_diaPosStart > 0)
-			{
+			while (y_cord_diaPosStart > 0 && x_cord_diaPosStart > 0) {
 				x_cord_diaPosStart--;
 				y_cord_diaPosStart--;
 			}
-			
+
 			// get first negative coordinate for diagonal
-			while(y_cord_diaNegStart < size_official && x_cord_diaNegStart > 0)
-			{
+			while (y_cord_diaNegStart < size_official && x_cord_diaNegStart > 0) {
 				x_cord_diaNegStart--;
 				y_cord_diaNegStart++;
 			}
-			
+
 			// show positive diagonal
-			while (y_cord_diaPosStart >= 0 && x_cord_diaPosStart <= size_official && y_cord_diaPosStart <= size_official) {
+			while (y_cord_diaPosStart >= 0 && x_cord_diaPosStart <= size_official
+					&& y_cord_diaPosStart <= size_official) {
 				int tempX = x_cord_diaPosStart * SQUARE_SIZE + X_OFF;
 				int tempYPos = y_cord_diaPosStart * SQUARE_SIZE + Y_OFF;
 				tempLines.add(new QueenPosition(x_cord_diaPosStart, y_cord_diaPosStart));
@@ -293,7 +303,8 @@ public class ProcessingApplication extends PApplet {
 				x_cord_diaPosStart++;
 			}
 			// show negative diagonal
-			while (y_cord_diaNegStart <= size_official && x_cord_diaNegStart <= size_official && y_cord_diaNegStart >= 0) {
+			while (y_cord_diaNegStart <= size_official && x_cord_diaNegStart <= size_official
+					&& y_cord_diaNegStart >= 0) {
 				int tempX = x_cord_diaNegStart * SQUARE_SIZE + X_OFF;
 				int tempYNeg = y_cord_diaNegStart * SQUARE_SIZE + Y_OFF;
 				tempLines.add(new QueenPosition(x_cord_diaNegStart, y_cord_diaNegStart));
@@ -305,49 +316,47 @@ public class ProcessingApplication extends PApplet {
 		}
 
 	}
-	
+
 	private List<QueenPosition> getAllLines(List<Integer> index) {
 		List<QueenPosition> tempList = new ArrayList<QueenPosition>();
-		
-			// Horizontal und vertikal
-			for (int i = 0; i < SIZE; i++) {
-				tempList.add(new QueenPosition(i , index.get(1)));
-				tempList.add(new QueenPosition(index.get(0), i ));
-			}
-			// diagonal
-			final int size_official = SIZE - 1;
-			int x_cord_diaPosStart = index.get(0);
-			int x_cord_diaNegStart = index.get(0);
-			int y_cord_diaPosStart = index.get(1);
-			int y_cord_diaNegStart = index.get(1);
-			
-			// get first positive coordinate for diagonal
-			while(y_cord_diaPosStart > 0 && x_cord_diaPosStart > 0)
-			{
-				x_cord_diaPosStart--;
-				y_cord_diaPosStart--;
-			}
-			
-			// get first negative coordinate for diagonal
-			while(y_cord_diaNegStart < size_official && x_cord_diaNegStart > 0)
-			{
-				x_cord_diaNegStart--;
-				y_cord_diaNegStart++;
-			}
-			
-			// show positive diagonal
-			while (y_cord_diaPosStart >= 0 && x_cord_diaPosStart <= size_official && y_cord_diaPosStart <= size_official) {
-				tempList.add(new QueenPosition(x_cord_diaPosStart, y_cord_diaPosStart));
-				y_cord_diaPosStart++;
-				x_cord_diaPosStart++;
-			}
-			// show negative diagonal
-			while (y_cord_diaNegStart <= size_official && x_cord_diaNegStart <= size_official && y_cord_diaNegStart >= 0) {
-				tempList.add(new QueenPosition(x_cord_diaNegStart, y_cord_diaNegStart));
-				y_cord_diaNegStart--;
-				x_cord_diaNegStart++;
-			}
-		
+
+		// Horizontal und vertikal
+		for (int i = 0; i < SIZE; i++) {
+			tempList.add(new QueenPosition(i, index.get(1)));
+			tempList.add(new QueenPosition(index.get(0), i));
+		}
+		// diagonal
+		final int size_official = SIZE - 1;
+		int x_cord_diaPosStart = index.get(0);
+		int x_cord_diaNegStart = index.get(0);
+		int y_cord_diaPosStart = index.get(1);
+		int y_cord_diaNegStart = index.get(1);
+
+		// get first positive coordinate for diagonal
+		while (y_cord_diaPosStart > 0 && x_cord_diaPosStart > 0) {
+			x_cord_diaPosStart--;
+			y_cord_diaPosStart--;
+		}
+
+		// get first negative coordinate for diagonal
+		while (y_cord_diaNegStart < size_official && x_cord_diaNegStart > 0) {
+			x_cord_diaNegStart--;
+			y_cord_diaNegStart++;
+		}
+
+		// show positive diagonal
+		while (y_cord_diaPosStart >= 0 && x_cord_diaPosStart <= size_official && y_cord_diaPosStart <= size_official) {
+			tempList.add(new QueenPosition(x_cord_diaPosStart, y_cord_diaPosStart));
+			y_cord_diaPosStart++;
+			x_cord_diaPosStart++;
+		}
+		// show negative diagonal
+		while (y_cord_diaNegStart <= size_official && x_cord_diaNegStart <= size_official && y_cord_diaNegStart >= 0) {
+			tempList.add(new QueenPosition(x_cord_diaNegStart, y_cord_diaNegStart));
+			y_cord_diaNegStart--;
+			x_cord_diaNegStart++;
+		}
+
 		return tempList;
 	}
 
@@ -374,65 +383,58 @@ public class ProcessingApplication extends PApplet {
 			startButton.mousePressed();
 			quitButton.mousePressed();
 			if (mainMenuChooseSize) {
-				chooseSize4Button.mousePressed();       
-				chooseSize8Button.mousePressed();       
-				chooseSize10Button.mousePressed();      
-				chooseSize16Button.mousePressed();      
-				chooseSizeUserButton.mousePressed(); 
+				chooseSize4Button.mousePressed();
+				chooseSize8Button.mousePressed();
+				chooseSize10Button.mousePressed();
+				chooseSize16Button.mousePressed();
+				chooseSizeUserButton.mousePressed();
 			}
 		} else {
 			List<Integer> index = getChessTileFromMouse(mouseX, mouseY);
 			System.out.println("Chess tile index " + Arrays.toString(index.toArray()));
-			List<Integer> tempIndex = new ArrayList<Integer>();
-			boolean queenRemoved = false;
-			for (List<Integer> indexOfQueens : queens) {
-				if(index.get(0)==indexOfQueens.get(0) && index.get(1) == indexOfQueens.get(1))
-				{
-					tempIndex = indexOfQueens;
-				}
-			}
-			if(!tempIndex.isEmpty())
-			{
-				queens.remove(tempIndex);
-				List<Integer> tempQueen = new ArrayList<Integer>();
-				for(List<Integer> qu : queenLines.keySet())
-				{
-					if(tempIndex.get(0) == qu.get(0) && tempIndex.get(1) == qu.get(1))
-					{
-						tempQueen = qu;
+			if (index.get(0) != -1 && index.get(1) != -1) {
+
+				List<Integer> tempIndex = new ArrayList<Integer>();
+				boolean queenRemoved = false;
+				for (List<Integer> indexOfQueens : queens) {
+					if (index.get(0) == indexOfQueens.get(0) && index.get(1) == indexOfQueens.get(1)) {
+						tempIndex = indexOfQueens;
 					}
 				}
-				queenLines.remove(tempQueen);
-				queenRemoved= true;
-			}
-			if(!queenRemoved)
-			{
-				boolean freeSpace = true;
-				for(Map.Entry<List<Integer>, List<QueenPosition>> pair : queenLines.entrySet())
-				{
-					for(QueenPosition position : pair.getValue())
-					{
-						if (index.get(0) >= 0 && index.get(1) >= 0) {
-							if(position.getxPosition() == index.get(0) && position.getyPosition() == index.get(1))
-							{
-								freeSpace = false;
+				if (!tempIndex.isEmpty()) {
+					queens.remove(tempIndex);
+					List<Integer> tempQueen = new ArrayList<Integer>();
+					for (List<Integer> qu : queenLines.keySet()) {
+						if (tempIndex.get(0) == qu.get(0) && tempIndex.get(1) == qu.get(1)) {
+							tempQueen = qu;
+						}
+					}
+					queenLines.remove(tempQueen);
+					queenRemoved = true;
+				}
+				if (!queenRemoved) {
+					boolean freeSpace = true;
+					for (Map.Entry<List<Integer>, List<QueenPosition>> pair : queenLines.entrySet()) {
+						for (QueenPosition position : pair.getValue()) {
+							if (index.get(0) >= 0 && index.get(1) >= 0) {
+								if (position.getxPosition() == index.get(0)
+										&& position.getyPosition() == index.get(1)) {
+									freeSpace = false;
+								}
 							}
 						}
-					}			
+					}
+					if (freeSpace) {
+						queens.add(index);
+					} else {
+						System.out.println("Not a free index for a queen " + Arrays.toString(index.toArray()));
+					}
 				}
-				if(freeSpace)
-				{
-					queens.add(index);	
-				}
-				else
-				{
-					System.out.println("Not a free index for a queen " + Arrays.toString(index.toArray()));
-				}
-			}	
+			}
 			nextButton.mousePressed();
 			prevButton.mousePressed();
 			backButton.mousePressed();
-			if(allowUserInput) {
+			if (allowUserInput) {
 				solveButton.mousePressed();
 			}
 		}

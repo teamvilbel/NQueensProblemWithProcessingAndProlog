@@ -1,4 +1,4 @@
-package tem.vilbel.com.processing.button;
+package thm.vilbel.com.processing.button;
 /**
  * 
  * This Interface holds the action that will be executed if a {@link ProcessingButton} is pressed.   

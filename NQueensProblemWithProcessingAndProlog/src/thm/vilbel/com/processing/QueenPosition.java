@@ -1,4 +1,4 @@
-package tem.vilbel.com.processing;
+package thm.vilbel.com.processing;
 
 public class QueenPosition {
 	private int xPosition;

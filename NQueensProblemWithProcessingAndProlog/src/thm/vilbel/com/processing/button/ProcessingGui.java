@@ -1,7 +1,7 @@
 /**
  * 
  */
-package tem.vilbel.com.processing.button;
+package thm.vilbel.com.processing.button;
 
 import processing.core.PApplet;
 
@@ -15,7 +15,7 @@ public abstract class ProcessingGui {
 	
 	
 	/** Reference to the processing sketch */
-	PApplet pa;
+	protected PApplet pa;
 	
 	
 	/**
