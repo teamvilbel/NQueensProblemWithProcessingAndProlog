@@ -1,6 +1,5 @@
 package thm.vilbel.com.processing;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -8,8 +7,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import org.jpl7.fli.qid_t;
 
 import processing.core.PApplet;
 import processing.core.PImage;
@@ -56,6 +53,7 @@ public class ProcessingApplication extends PApplet {
 	private ProcessingButton chooseSizeUserButton;
 
 	private ProcessingAlert alertNoSolution;
+	private ProcessingAlert alertSolutionCount;
 
 	private boolean mainMenu;
 	private boolean mainMenuChooseSize;
@@ -120,6 +118,8 @@ public class ProcessingApplication extends PApplet {
 				alertNoSolution.resetAlert();
 				disableQueenDeletion = false;
 			} else {
+				alertSolutionCount = new ProcessingAlert(ProcessingApplication.this, width / 2 - 45, SQUARE_SIZE * SIZE + 200, 150,50,(solutions.size()) + " Solutions!");
+				alertSolutionCount.resetAlert();
 				queens = getProcessingIndexFromPrologIndex(solutions.get(solutionIndex));
 			}
 		}
@@ -223,9 +223,9 @@ public class ProcessingApplication extends PApplet {
 		chooseSize16Button.onClick(showSolutions16Action);
 		chooseSizeUserButton.onClick(showSolutionsUserAction);
 
-		alertNoSolution = new ProcessingAlert(this, 200, 200, 350, 100,
-				"There are no sulotions available\r\nfor this queen configuration!\r\nRedo your Queens.");
-
+		alertNoSolution = new ProcessingAlert(this, width / 2 - 187, height/2 -50, 375, 100,
+				"There are no sulotions available\r\nfor this queen configuration!\r\nChange the position of your queens.");
+		alertSolutionCount = new ProcessingAlert(ProcessingApplication.this, width / 2 - 45, SQUARE_SIZE * SIZE + 200, 100 ,100," Solutions!");
 	}
 
 	public void draw() {
@@ -249,6 +249,7 @@ public class ProcessingApplication extends PApplet {
 						SQUARE_SIZE);
 			}
 			alertNoSolution.draw();
+			alertSolutionCount.draw();
 		}
 	}
 
@@ -401,6 +402,7 @@ public class ProcessingApplication extends PApplet {
 			}
 		} else {
 			List<Integer> index = getChessTileFromMouse(mouseX, mouseY);
+			
 			System.out.println("Chess tile index " + Arrays.toString(index.toArray()));
 			if(!disableQueenDeletion) {
 				if (index.get(0) != -1 && index.get(1) != -1) {
