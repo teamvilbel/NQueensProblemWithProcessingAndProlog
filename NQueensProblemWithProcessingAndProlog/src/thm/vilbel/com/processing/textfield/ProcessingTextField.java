@@ -116,7 +116,7 @@ public class ProcessingTextField extends ProcessingGui {
 	 * @param headerTextFieldText
 	 */
 	public ProcessingTextField(PApplet pa, int textFieldX, int textFieldY, String headerTextFieldText) {
-		this(pa, textFieldX, textFieldY, 200, 100, headerTextFieldText, "HH st", 20);
+		this(pa, textFieldX, textFieldY, 200, 100, headerTextFieldText, "Size", 20);
 	}
 
 	@Override
@@ -167,7 +167,7 @@ public class ProcessingTextField extends ProcessingGui {
 			if (temp.length() > 0) {
 				temp = temp.substring(0, temp.length() - 1);
 			}
-		} else if (key >= '1' && key <= '9') {
+		} else if (key >= '0' && key <= '9') {
 			temp = temp + key;
 		}
 		setTextFieldUserText(temp);
