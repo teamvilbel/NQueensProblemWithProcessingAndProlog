@@ -4,7 +4,7 @@
 package thm.vilbel.com.processing.alert;
 
 import processing.core.PApplet;
-import thm.vilbel.com.processing.button.ProcessingGui;
+import thm.vilbel.com.processing.ProcessingGui;
 
 /**
  * @author Noah Ruben

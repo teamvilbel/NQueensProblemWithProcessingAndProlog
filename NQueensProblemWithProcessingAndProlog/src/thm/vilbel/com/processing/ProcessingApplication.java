@@ -11,9 +11,9 @@ import java.util.Set;
 import processing.core.PApplet;
 import processing.core.PImage;
 import thm.vilbel.com.processing.alert.ProcessingAlert;
-import thm.vilbel.com.processing.button.IProcessingButtonAction;
 import thm.vilbel.com.processing.button.ProcessingButton;
-import thm.vilbel.com.processing.button.ProcessingLabel;
+import thm.vilbel.com.processing.textfield.ProcessingTextField;
+import thm.vilbel.com.processing.ProcessingLabel;
 import thm.vilbel.com.prolog.SolutionsWithProlog;
 
 /**
@@ -49,17 +49,20 @@ public class ProcessingApplication extends PApplet {
 	private ProcessingButton chooseSize4Button;
 	private ProcessingButton chooseSize8Button;
 	private ProcessingButton chooseSize10Button;
-	private ProcessingButton chooseSize16Button;
-	private ProcessingButton chooseSizeUserButton;
+	private ProcessingButton chooseUserSizeButton;
+	private ProcessingButton chooseUserInputButton;
 
 	private ProcessingAlert alertNoSolution;
 	private ProcessingAlert alertSolutionCount;
+	private ProcessingTextField sizeInputTextField;
+	
 
 	private boolean mainMenu;
 	private boolean mainMenuChooseSize;
 	private boolean disableQueenDeletion;
+	private boolean showTextField;
 
-	private IProcessingButtonAction showSolutions4Action = new IProcessingButtonAction() {
+	private IProcessingAction showSolutions4Action = new IProcessingAction() {
 		@Override
 		public void doAction() {
 			SIZE = 4;
@@ -67,7 +70,7 @@ public class ProcessingApplication extends PApplet {
 			ProcessingApplication.this.goToBoard();
 		}
 	};
-	private IProcessingButtonAction showSolutions8Action = new IProcessingButtonAction() {
+	private IProcessingAction showSolutions8Action = new IProcessingAction() {
 		@Override
 		public void doAction() {
 			SIZE = 8;
@@ -75,7 +78,7 @@ public class ProcessingApplication extends PApplet {
 			ProcessingApplication.this.goToBoard();
 		}
 	};
-	private IProcessingButtonAction showSolutions10Action = new IProcessingButtonAction() {
+	private IProcessingAction showSolutions10Action = new IProcessingAction() {
 		@Override
 		public void doAction() {
 			SIZE = 10;
@@ -83,15 +86,15 @@ public class ProcessingApplication extends PApplet {
 			ProcessingApplication.this.goToBoard();
 		}
 	};
-	private IProcessingButtonAction showSolutions16Action = new IProcessingButtonAction() {
+	private IProcessingAction enterUserSizeAction = new IProcessingAction() {
+
 		@Override
 		public void doAction() {
-			SIZE = 16;
-			disableQueenDeletion = true;
-			ProcessingApplication.this.goToBoard();
+			ProcessingApplication.this.showTextField = true;
+			ProcessingApplication.this.sizeInputTextField.setFocus(true);
 		}
 	};
-	private IProcessingButtonAction showSolutionsUserAction = new IProcessingButtonAction() {
+	private IProcessingAction showSolutionsUserAction = new IProcessingAction() {
 		@Override
 		public void doAction() {
 			disableQueenDeletion = false;
@@ -107,7 +110,7 @@ public class ProcessingApplication extends PApplet {
 		}
 	};
 
-	private IProcessingButtonAction solveAction = new IProcessingButtonAction() {
+	private IProcessingAction solveAction = new IProcessingAction() {
 		@Override
 		public void doAction() {
 			disableQueenDeletion = true;
@@ -125,14 +128,14 @@ public class ProcessingApplication extends PApplet {
 		}
 	};
 
-	private IProcessingButtonAction startAction = new IProcessingButtonAction() {
+	private IProcessingAction startAction = new IProcessingAction() {
 		@Override
 		public void doAction() {
 			ProcessingApplication.this.mainMenuChooseSize = true;
 		}
 	};
 
-	private IProcessingButtonAction quitAction = new IProcessingButtonAction() {
+	private IProcessingAction quitAction = new IProcessingAction() {
 
 		@Override
 		public void doAction() {
@@ -141,7 +144,7 @@ public class ProcessingApplication extends PApplet {
 		}
 	};
 
-	private IProcessingButtonAction backAction = new IProcessingButtonAction() {
+	private IProcessingAction backAction = new IProcessingAction() {
 
 		@Override
 		public void doAction() {
@@ -151,7 +154,7 @@ public class ProcessingApplication extends PApplet {
 			queenLines.clear();
 		}
 	};
-	private IProcessingButtonAction nextAction = new IProcessingButtonAction() {
+	private IProcessingAction nextAction = new IProcessingAction() {
 
 		@Override
 		public void doAction() {
@@ -167,7 +170,7 @@ public class ProcessingApplication extends PApplet {
 
 		}
 	};
-	private IProcessingButtonAction prevAction = new IProcessingButtonAction() {
+	private IProcessingAction prevAction = new IProcessingAction() {
 
 		@Override
 		public void doAction() {
@@ -196,7 +199,7 @@ public class ProcessingApplication extends PApplet {
 	public void settings() {
 		size(1000, 1000);
 //		fullScreen();
-		img = loadImage("./NQueensProblemWithProcessingAndProlog/resources/Chess_queen_icon.png", "png");
+		img = loadImage("./resources/Chess_queen_icon.png", "png");
 
 		startButton = new ProcessingButton(this, width / 2 - 100, 200, "Start");
 		quitButton = new ProcessingButton(this, width / 2 - 100, 300, "Quit");
@@ -208,8 +211,8 @@ public class ProcessingApplication extends PApplet {
 		chooseSize4Button = new ProcessingButton(this, width / 2 - 300, 300, "4x4");
 		chooseSize8Button = new ProcessingButton(this, width / 2 - 200, 300, "8x8");
 		chooseSize10Button = new ProcessingButton(this, width / 2 - 100, 300, "10x10");
-		chooseSize16Button = new ProcessingButton(this, width / 2, 300, "16x16");
-		chooseSizeUserButton = new ProcessingButton(this, width / 2 + 100, 300, 150, 45, "User Input");
+		chooseUserSizeButton = new ProcessingButton(this, width / 2, 300, 150, 45, "Enter Size");
+		chooseUserInputButton = new ProcessingButton(this, width / 2 + 160, 300, 150, 45, "User Input");
 
 		startButton.onClick(startAction);
 		quitButton.onClick(quitAction);
@@ -220,12 +223,28 @@ public class ProcessingApplication extends PApplet {
 		chooseSize4Button.onClick(showSolutions4Action);
 		chooseSize8Button.onClick(showSolutions8Action);
 		chooseSize10Button.onClick(showSolutions10Action);
-		chooseSize16Button.onClick(showSolutions16Action);
-		chooseSizeUserButton.onClick(showSolutionsUserAction);
+		chooseUserSizeButton.onClick(enterUserSizeAction);
+		chooseUserInputButton.onClick(showSolutionsUserAction);
 
 		alertNoSolution = new ProcessingAlert(this, width / 2 - 187, height/2 -50, 375, 100,
 				"There are no sulotions available\r\nfor this queen configuration!\r\nChange the position of your queens.");
 		alertSolutionCount = new ProcessingAlert(ProcessingApplication.this, width / 2 - 45, SQUARE_SIZE * SIZE + 200, 100 ,100," Solutions!");
+		
+		sizeInputTextField = new ProcessingTextField(this, width / 2 - 50, height/2 -50, "Enter Board-Size");
+		sizeInputTextField.onEnter(new IProcessingAction() {
+			
+			@Override
+			public void doAction() {
+				
+				try {
+					SIZE = Integer.valueOf(ProcessingApplication.this.sizeInputTextField.getTextFieldUserText());
+				} catch (Exception e) {
+					System.out.println("Could not parse!");
+				}
+				disableQueenDeletion = true;
+				ProcessingApplication.this.goToBoard();
+			}
+		});
 	}
 
 	public void draw() {
@@ -259,11 +278,15 @@ public class ProcessingApplication extends PApplet {
 			chooseSize4Button.draw();
 			chooseSize8Button.draw();
 			chooseSize10Button.draw();
-			chooseSize16Button.draw();
-			chooseSizeUserButton.draw();
+			chooseUserSizeButton.draw();
+			chooseUserInputButton.draw();
 			quitButton.setButtonY(400);
+			if (showTextField) {
+				sizeInputTextField.draw();
+			}
 		} else {
 			startButton.draw();
+			quitButton.setButtonY(300);
 		}
 		quitButton.draw();
 	}
@@ -387,6 +410,12 @@ public class ProcessingApplication extends PApplet {
 			}
 		}
 	}
+	public void keyPressed() {
+//		49 - 57
+		if (this.showTextField) {
+			this.sizeInputTextField.keyPressed(key);
+		}
+	}
 
 	public void mouseClicked() {
 		System.out.println(System.lineSeparator() + "MouseX: " + mouseX + ", " + " MouseY: " + mouseY);
@@ -394,11 +423,19 @@ public class ProcessingApplication extends PApplet {
 			startButton.mousePressed();
 			quitButton.mousePressed();
 			if (mainMenuChooseSize) {
-				chooseSize4Button.mousePressed();
-				chooseSize8Button.mousePressed();
-				chooseSize10Button.mousePressed();
-				chooseSize16Button.mousePressed();
-				chooseSizeUserButton.mousePressed();
+				if (showTextField) {
+					if (!this.sizeInputTextField.overTextField()) {
+						showTextField = false;
+						this.sizeInputTextField.setFocus(false);
+					}
+				}else {
+					chooseSize4Button.mousePressed();
+					chooseSize8Button.mousePressed();
+					chooseSize10Button.mousePressed();
+					chooseUserSizeButton.mousePressed();
+					chooseUserInputButton.mousePressed();
+					
+				}
 			}
 		} else {
 			List<Integer> index = getChessTileFromMouse(mouseX, mouseY);

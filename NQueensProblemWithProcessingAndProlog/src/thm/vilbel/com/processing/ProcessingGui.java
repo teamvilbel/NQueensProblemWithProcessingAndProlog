@@ -1,7 +1,7 @@
 /**
  * 
  */
-package thm.vilbel.com.processing.button;
+package thm.vilbel.com.processing;
 
 import processing.core.PApplet;
 

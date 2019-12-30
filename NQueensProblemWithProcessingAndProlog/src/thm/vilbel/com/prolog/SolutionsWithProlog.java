@@ -47,7 +47,7 @@ public class SolutionsWithProlog {
 		JPL.init();
 		
 		// Load knowledge base from file.  
-		Query knowledgeBase = new Query("consult", new Term[] { new Atom("./NQueensProblemWithProcessingAndProlog/resources/n_queens.pl") });
+		Query knowledgeBase = new Query("consult", new Term[] { new Atom("./resources/n_queens.pl") });
 		
 		System.out.println("Loaded file: " + knowledgeBase.hasSolution());
 	}

@@ -1,6 +1,8 @@
 package thm.vilbel.com.processing.button;
 
 import processing.core.PApplet;
+import thm.vilbel.com.processing.IProcessingAction;
+import thm.vilbel.com.processing.ProcessingGui;
 
 /**
  * @author Noah Ruben
@@ -8,60 +10,62 @@ import processing.core.PApplet;
  *
  * @created 13.12.2019
  */
-public class ProcessingButton extends ProcessingGui{
+public class ProcessingButton extends ProcessingGui {
 	// Basic colors for the buttons 2 themes are available.
 	/** Light highlight color for the button */
 	public static int HILI_COLOR_L = 0xa0e8af;
 
 	/** Light base color for the button */
 	public static int BASE_COLOR_L = 0x3ab795;
-	
+
 	/** Dark highlight color for the button */
 	public static int HILI_COLOR_D = 0x035e7b;
-	
+
 	/** Dark base color for the button */
 	public static int BASE_COLOR_D = 0x002e2c;
-	
+
 	/** BLACK */
 	public static int BLACK = 0x0;
 
 	/** Position of the button */
-	private int buttonX, buttonY; 
-	
-	/** Diameter of the button*/
-	private int buttonSizeX, buttonSizeY; 
-	
-	/** Color of the button*/
+	private int buttonX, buttonY;
+
+	/** Diameter of the button */
+	private int buttonSizeX, buttonSizeY;
+
+	/** Color of the button */
 	private int baseColor, outlineColor, highlightColor;
 
-	/** Text of the button*/
+	/** Text of the button */
 	private final String buttonText;
-	
-	/** Size of {@link ProcessingButton#buttonText}*/
+
+	/** Size of {@link ProcessingButton#buttonText} */
 	private float textSize;
 
-	
-	/** The Action for this button <p>
-	 *  More infos {@link IProcessingButtonAction}*/
-	private IProcessingButtonAction onClickAction;
+	/**
+	 * The Action for this button
+	 * <p>
+	 * More infos {@link IProcessingAction}
+	 */
+	private IProcessingAction onClickAction;
 
 	/**
-	 * Default-Constructor for the ProcessingButton 
+	 * Default-Constructor for the ProcessingButton
 	 * 
-	 * @param pa {@link ProcessingButton#pa}
-	 * @param buttonX {@link ProcessingButton#buttonX}
-	 * @param buttonY {@link ProcessingButton#buttonY}
-	 * @param buttonSizeX {@link ProcessingButton#buttonSizeX}
-	 * @param buttonSizeY {@link ProcessingButton#buttonSizeY}
-	 * @param buttonText {@link ProcessingButton#buttonText}
-	 * @param textSize {@link ProcessingButton#textSize}
-	 * @param baseColor {@link ProcessingButton#baseColor}
-	 * @param outlineColor {@link ProcessingButton#outlineColor}
+	 * @param pa             {@link ProcessingButton#pa}
+	 * @param buttonX        {@link ProcessingButton#buttonX}
+	 * @param buttonY        {@link ProcessingButton#buttonY}
+	 * @param buttonSizeX    {@link ProcessingButton#buttonSizeX}
+	 * @param buttonSizeY    {@link ProcessingButton#buttonSizeY}
+	 * @param buttonText     {@link ProcessingButton#buttonText}
+	 * @param textSize       {@link ProcessingButton#textSize}
+	 * @param baseColor      {@link ProcessingButton#baseColor}
+	 * @param outlineColor   {@link ProcessingButton#outlineColor}
 	 * @param highlightColor {@link ProcessingButton#highlightColor}
-	 * @param onClick {@link ProcessingButton#onClickAction}
+	 * @param onClick        {@link ProcessingButton#onClickAction}
 	 */
 	private ProcessingButton(PApplet pa, int buttonX, int buttonY, int buttonSizeX, int buttonSizeY, String buttonText,
-			float textSize, int baseColor, int outlineColor, int highlightColor, IProcessingButtonAction onClick) {
+			float textSize, int baseColor, int outlineColor, int highlightColor, IProcessingAction onClick) {
 		super(pa);
 		this.buttonX = buttonX;
 		this.buttonY = buttonY;
@@ -74,15 +78,15 @@ public class ProcessingButton extends ProcessingGui{
 		this.onClickAction = onClick;
 		this.textSize = textSize;
 	}
-	
+
 	/**
 	 * 
-	 * @param pa {@link ProcessingButton#pa}
-	 * @param buttonX {@link ProcessingButton#buttonX}
-	 * @param buttonY {@link ProcessingButton#buttonY}
-	 * @param buttonText {@link ProcessingButton#buttonText}
-	 * @param baseColor {@link ProcessingButton#baseColor}
-	 * @param outlineColor {@link ProcessingButton#outlineColor}
+	 * @param pa             {@link ProcessingButton#pa}
+	 * @param buttonX        {@link ProcessingButton#buttonX}
+	 * @param buttonY        {@link ProcessingButton#buttonY}
+	 * @param buttonText     {@link ProcessingButton#buttonText}
+	 * @param baseColor      {@link ProcessingButton#baseColor}
+	 * @param outlineColor   {@link ProcessingButton#outlineColor}
 	 * @param highlightColor {@link ProcessingButton#highlightColor}
 	 */
 	public ProcessingButton(PApplet pa, int buttonX, int buttonY, String buttonText, int baseColor, int rectColor,
@@ -92,21 +96,21 @@ public class ProcessingButton extends ProcessingGui{
 
 	/**
 	 * 
-	 * @param pa {@link ProcessingButton#pa}
-	 * @param buttonX {@link ProcessingButton#buttonX}
-	 * @param buttonY {@link ProcessingButton#buttonY}
+	 * @param pa          {@link ProcessingButton#pa}
+	 * @param buttonX     {@link ProcessingButton#buttonX}
+	 * @param buttonY     {@link ProcessingButton#buttonY}
 	 * @param buttonSizeX {@link ProcessingButton#buttonSizeX}
 	 * @param buttonSizeY {@link ProcessingButton#buttonSizeY}
-	 * @param buttonText {@link ProcessingButton#buttonText}
+	 * @param buttonText  {@link ProcessingButton#buttonText}
 	 */
 	public ProcessingButton(PApplet pa, int buttonX, int buttonY, int buttonSizeX, int buttonSizeY, String buttonText) {
 		this(pa, buttonX, buttonY, buttonSizeX, buttonSizeY, buttonText, 20, BASE_COLOR_L, BLACK, HILI_COLOR_L, null);
 	}
 
 	/**
-	 * @param pa {@link ProcessingButton#pa}
-	 * @param buttonX {@link ProcessingButton#buttonX}
-	 * @param buttonY {@link ProcessingButton#buttonY}
+	 * @param pa         {@link ProcessingButton#pa}
+	 * @param buttonX    {@link ProcessingButton#buttonX}
+	 * @param buttonY    {@link ProcessingButton#buttonY}
 	 * @param buttonText {@link ProcessingButton#buttonText}
 	 */
 	public ProcessingButton(PApplet pa, int buttonX, int buttonY, String buttonText) {
@@ -114,7 +118,7 @@ public class ProcessingButton extends ProcessingGui{
 	}
 
 	/**
-	 *  Draws the Button on the Sketch 
+	 * Draws the Button on the Sketch
 	 */
 	public void draw() {
 
@@ -132,9 +136,9 @@ public class ProcessingButton extends ProcessingGui{
 
 	}
 
-	
 	/**
-	 * This should be called in {@link PApplet#mousePressed()} to give the button access to the mouse-press-event.
+	 * This should be called in {@link PApplet#mousePressed()} to give the button
+	 * access to the mouse-press-event.
 	 */
 	public void mousePressed() {
 		if (onClickAction == null) {
@@ -149,11 +153,12 @@ public class ProcessingButton extends ProcessingGui{
 	/**
 	 * Checks if the mouse is currenty over the rectangle.
 	 * 
-	 * @param x X-Position of the Rectangle to check
-	 * @param y X-Position of the Rectangle to check
-	 * @param width width of the Rectangle to check
+	 * @param x      X-Position of the Rectangle to check
+	 * @param y      X-Position of the Rectangle to check
+	 * @param width  width of the Rectangle to check
 	 * @param height height of the Rectangle to check
-	 * @return <b>true</b> if the mouse is currently over the Rectangle other wise <b>false</b>
+	 * @return <b>true</b> if the mouse is currently over the Rectangle other wise
+	 *         <b>false</b>
 	 */
 	boolean overRect(int x, int y, int width, int height) {
 		if (this.pa.mouseX >= x && this.pa.mouseX <= x + width && this.pa.mouseY >= y && this.pa.mouseY <= y + height) {
@@ -164,9 +169,12 @@ public class ProcessingButton extends ProcessingGui{
 	}
 
 	/**
-	 * Uses the {@link ProcessingButton#overRect(int, int, int, int)} with {@link ProcessingButton#buttonX}, {@link ProcessingButton#buttonY}, {@link ProcessingButton#buttonSizeX} and {@link ProcessingButton#buttonSizeY} 
+	 * Uses the {@link ProcessingButton#overRect(int, int, int, int)} with
+	 * {@link ProcessingButton#buttonX}, {@link ProcessingButton#buttonY},
+	 * {@link ProcessingButton#buttonSizeX} and {@link ProcessingButton#buttonSizeY}
 	 * 
-	 * @return <b>true</b> if the mouse is currently over the button other wise <b>false</b>
+	 * @return <b>true</b> if the mouse is currently over the button other wise
+	 *         <b>false</b>
 	 */
 	boolean overButton() {
 		return overRect(buttonX, buttonY, buttonSizeX, buttonSizeY);
@@ -175,14 +183,14 @@ public class ProcessingButton extends ProcessingGui{
 	/**
 	 * @return the {@link #onClickAction}
 	 */
-	public IProcessingButtonAction getOnClickEvent() {
+	public IProcessingAction getOnClickEvent() {
 		return onClickAction;
 	}
 
 	/**
 	 * @param onClickAction the {@link #onClickAction} to set
 	 */
-	public void onClick(IProcessingButtonAction onClickAction) {
+	public void onClick(IProcessingAction onClickAction) {
 		this.onClickAction = onClickAction;
 	}
 
@@ -304,5 +312,5 @@ public class ProcessingButton extends ProcessingGui{
 	public String getButtonText() {
 		return buttonText;
 	}
-	
+
 }

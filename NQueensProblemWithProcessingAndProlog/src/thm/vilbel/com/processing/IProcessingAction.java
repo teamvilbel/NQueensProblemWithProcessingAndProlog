@@ -1,4 +1,7 @@
-package thm.vilbel.com.processing.button;
+package thm.vilbel.com.processing;
+
+import thm.vilbel.com.processing.button.ProcessingButton;
+
 /**
  * 
  * This Interface holds the action that will be executed if a {@link ProcessingButton} is pressed.   
@@ -7,7 +10,7 @@ package thm.vilbel.com.processing.button;
  *
  * @created 13.12.2019
  */
-public interface IProcessingButtonAction {
+public interface IProcessingAction {
 	/**
 	 * This Function is called by the {@link ProcessingButton} if it is pressed
 	 */
