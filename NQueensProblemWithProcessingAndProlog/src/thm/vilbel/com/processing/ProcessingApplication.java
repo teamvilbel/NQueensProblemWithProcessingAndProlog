@@ -148,8 +148,12 @@ public class ProcessingApplication extends PApplet {
 
 		@Override
 		public void doAction() {
+			mainMenu=true;
+			mainMenuChooseSize = true;
+			showTextField = false;
 			disableQueenDeletion = true;
-			mainMenu = true;
+			allowUserInput = false;
+			solutionIndex = 0;
 			queens.clear();
 			queenLines.clear();
 		}
@@ -199,7 +203,8 @@ public class ProcessingApplication extends PApplet {
 	public void settings() {
 		size(1000, 1000);
 //		fullScreen();
-		img = loadImage("./resources/Chess_queen_icon.png", "png");
+//		img = loadImage("./resources/Chess_queen_icon.png", "png");
+		img = loadImage("./resources/Unbenannt.png", "png");
 
 		startButton = new ProcessingButton(this, width / 2 - 100, 200, "Start");
 		quitButton = new ProcessingButton(this, width / 2 - 100, 300, "Quit");
