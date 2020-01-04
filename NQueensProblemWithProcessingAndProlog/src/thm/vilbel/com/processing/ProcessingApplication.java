@@ -10,6 +10,7 @@ import java.util.Set;
 
 import processing.core.PApplet;
 import processing.core.PImage;
+import processing.event.MouseEvent;
 import thm.vilbel.com.processing.alert.ProcessingAlert;
 import thm.vilbel.com.processing.button.ProcessingButton;
 import thm.vilbel.com.processing.textfield.ProcessingTextField;
@@ -26,9 +27,16 @@ public class ProcessingApplication extends PApplet {
 
 	SolutionsWithProlog solver;
 
+	private final int windowHeight = 1000;
+	private final int windowWidth = 1000;
+
+	private final int firstRow = 100;
+	private final int firstColl = 100;
+
 	private final int X_OFF = 125;
 	private final int Y_OFF = 50;
 	private final int SQUARE_SIZE = 75;
+	private int squareScale = 0;
 	private int SIZE = 8;
 
 	private List<List<Integer>> solutions;
@@ -36,37 +44,48 @@ public class ProcessingApplication extends PApplet {
 	private Set<List<Integer>> queens;
 	private Map<List<Integer>, List<QueenPosition>> queenLines;
 
-	private PImage img;
+	private PImage queenImg;
+
+	// Buttons
+	private ProcessingButton fullscreenButton;
 	private ProcessingButton startButton;
 	private ProcessingButton quitButton;
 	private ProcessingButton nextButton;
 	private ProcessingButton prevButton;
 	private ProcessingButton solveButton;
-	//button to trigger userInputTextField in UserInputScreen
+	// button to trigger userInputTextField in UserInputScreen
 	private ProcessingButton sizeButton;
 	private ProcessingButton backButton;
-
-	private ProcessingLabel chooseLabel;
 	private ProcessingButton chooseSize4Button;
 	private ProcessingButton chooseSize8Button;
 	private ProcessingButton chooseSize10Button;
 	private ProcessingButton chooseUserSizeButton;
 	private ProcessingButton chooseUserInputButton;
 
+	// Labels
+	private ProcessingLabel chooseLabel;
+	private ProcessingLabel solutionLabel;
+
+	// Alerts
 	private ProcessingAlert alertNoSolution;
 	private ProcessingAlert alertSolutionCount;
-	private ProcessingTextField sizeInputTextField;
-	//textField to set BoardSize in UserInputScreen
-	private ProcessingTextField userInputTextField;
-	
 
+	// Textfields
+	private ProcessingTextField sizeInputTextField;
+	// textField to set BoardSize in UserInputScreen
+	private ProcessingTextField userInputTextField;
+
+	// state booleans TODO real State machine
 	private boolean mainMenu;
 	private boolean mainMenuChooseSize;
 	private boolean disableQueenDeletion;
 	private boolean showTextField;
-	//boolean to toggle userInputTextField
 	private boolean showUserInputTextField;
+	private boolean allowUserInput;
 
+	private boolean fullscreen;
+
+	// Actions
 	private IProcessingAction showSolutions4Action = new IProcessingAction() {
 		@Override
 		public void doAction() {
@@ -104,7 +123,7 @@ public class ProcessingApplication extends PApplet {
 		public void doAction() {
 			allowUserInput = true;
 			disableQueenDeletion = false;
-			ProcessingApplication.this.SIZE = 6;
+			ProcessingApplication.this.SIZE = 8;
 			solveButton = new ProcessingButton(ProcessingApplication.this, ProcessingApplication.this.width / 2 - 45,
 					ProcessingApplication.this.SQUARE_SIZE * ProcessingApplication.this.SIZE + 2 * Y_OFF, "SOLVE");
 			solveButton.onClick(solveAction);
@@ -115,7 +134,6 @@ public class ProcessingApplication extends PApplet {
 			mainMenuChooseSize = false;
 		}
 	};
-
 	private IProcessingAction solveAction = new IProcessingAction() {
 		@Override
 		public void doAction() {
@@ -127,14 +145,13 @@ public class ProcessingApplication extends PApplet {
 				alertNoSolution.resetAlert();
 				disableQueenDeletion = false;
 			} else {
-				alertSolutionCount = new ProcessingAlert(ProcessingApplication.this, width / 2 - 45, SQUARE_SIZE * SIZE + 200, 150,50,(solutions.size()) + " Solutions!");
+				alertSolutionCount = new ProcessingAlert(ProcessingApplication.this, width / 2 - 45,
+						SQUARE_SIZE * SIZE + 200, 150, 50, (solutions.size()) + " Solutions!");
 				alertSolutionCount.resetAlert();
 				queens = getProcessingIndexFromPrologIndex(solutions.get(solutionIndex));
 			}
 		}
 	};
-
-	//action to sizeInput by User
 	private IProcessingAction newSizeAction = new IProcessingAction() {
 		@Override
 		public void doAction() {
@@ -142,14 +159,12 @@ public class ProcessingApplication extends PApplet {
 			ProcessingApplication.this.userInputTextField.setFocus(true);
 		}
 	};
-
 	private IProcessingAction startAction = new IProcessingAction() {
 		@Override
 		public void doAction() {
 			ProcessingApplication.this.mainMenuChooseSize = true;
 		}
 	};
-
 	private IProcessingAction quitAction = new IProcessingAction() {
 
 		@Override
@@ -158,12 +173,11 @@ public class ProcessingApplication extends PApplet {
 			ProcessingApplication.this.exit();
 		}
 	};
-
 	private IProcessingAction backAction = new IProcessingAction() {
 
 		@Override
 		public void doAction() {
-			mainMenu=true;
+			mainMenu = true;
 			mainMenuChooseSize = true;
 			showTextField = false;
 			disableQueenDeletion = true;
@@ -204,22 +218,62 @@ public class ProcessingApplication extends PApplet {
 		}
 	};
 
-	private boolean allowUserInput = false;
+	private IProcessingAction toggleFullscreenAction = new IProcessingAction() {
+
+		@Override
+		public void doAction() {
+			ProcessingApplication.this.fullscreen = !ProcessingApplication.this.fullscreen;
+			System.out.println(displayHeight + "," + displayWidth);
+			System.out.println("Fullscreen:" + fullscreen);
+			if (fullscreen) {
+				ProcessingApplication.this.surface.setSize(displayWidth, displayHeight);
+				ProcessingApplication.this.surface.setLocation(-10, 0); // TODO Warum diese Zahlen
+			} else {
+				ProcessingApplication.this.surface.setSize(windowWidth, windowHeight);
+				ProcessingApplication.this.surface.setLocation((displayWidth / 2) - 10 - (windowWidth / 2), 0); // TODO
+																												// Warum
+																												// diese
+																												// Zahlen
+			}
+		}
+	};
 
 	public ProcessingApplication() {
 		queens = new HashSet<List<Integer>>();
 		queenLines = new HashMap<List<Integer>, List<QueenPosition>>();
-		mainMenu = true;
-		mainMenuChooseSize = false;
-		disableQueenDeletion = true;
 		solver = new SolutionsWithProlog(SIZE, queens);
+
+		mainMenu = true;
+		disableQueenDeletion = true; // TODO reverse logic
+		mainMenuChooseSize = false;
+		allowUserInput = false;
+		fullscreen = false;
 	}
 
+	/**
+	 * Settings für Processing bevor Processing initialisiert wurde.
+	 */
 	public void settings() {
-		size(1000, 1000);
-//		fullScreen();
-		img = loadImage("NQueensProblemWithProcessingAndProlog/resources/Chess_queen_icon.png", "png");
-//		img = loadImage("./resources/Chess_queen_icon.png", "png");
+		size(windowWidth, windowHeight);
+		queenImg = loadImage("./resources/Chess_queen_icon.png", "png");
+	}
+
+	/**
+	 * Settings für Processing nachdem Processing initialisiert wurde. Hier kann auf
+	 * Processing zugegriffen werden.
+	 */
+	public void setup() {
+		surface.setResizable(true);
+		System.out.println("Set window resizable\n\rDisplay size:");
+		System.out.println(displayHeight + "," + displayWidth);
+		guiInit();
+	}
+
+	/**
+	 * Erstellung der GUI Komponenten.
+	 */
+	private void guiInit() {
+		fullscreenButton = new ProcessingButton(this, width - 50, 0, 25, 25, "F");
 
 		startButton = new ProcessingButton(this, width / 2 - 100, 200, "Start");
 		quitButton = new ProcessingButton(this, width / 2 - 100, 300, "Quit");
@@ -234,6 +288,7 @@ public class ProcessingApplication extends PApplet {
 		chooseUserSizeButton = new ProcessingButton(this, width / 2, 300, 150, 45, "Enter Size");
 		chooseUserInputButton = new ProcessingButton(this, width / 2 + 160, 300, 150, 45, "User Input");
 
+		fullscreenButton.onClick(toggleFullscreenAction);
 		startButton.onClick(startAction);
 		quitButton.onClick(quitAction);
 		nextButton.onClick(nextAction);
@@ -246,16 +301,17 @@ public class ProcessingApplication extends PApplet {
 		chooseUserSizeButton.onClick(enterUserSizeAction);
 		chooseUserInputButton.onClick(showSolutionsUserAction);
 
-		alertNoSolution = new ProcessingAlert(this, width / 2 - 187, height/2 -50, 375, 100,
+		alertNoSolution = new ProcessingAlert(this, width / 2 - 187, height / 2 - 50, 375, 100,
 				"There are no sulotions available\r\nfor this queen configuration!\r\nChange the position of your queens.");
-		alertSolutionCount = new ProcessingAlert(ProcessingApplication.this, width / 2 - 45, SQUARE_SIZE * SIZE + 200, 100 ,100," Solutions!");
-		
-		sizeInputTextField = new ProcessingTextField(this, width / 2 - 50, height/2 -50, "Enter Board-Size");
+		alertSolutionCount = new ProcessingAlert(ProcessingApplication.this, width / 2 - 45, SQUARE_SIZE * SIZE + 200,
+				100, 100, " Solutions!");
+
+		sizeInputTextField = new ProcessingTextField(this, width / 2 - 50, height / 2 - 50, "Enter Board-Size");
 		sizeInputTextField.onEnter(new IProcessingAction() {
-			
+
 			@Override
 			public void doAction() {
-				
+
 				try {
 					SIZE = Integer.valueOf(ProcessingApplication.this.sizeInputTextField.getTextFieldUserText());
 				} catch (Exception e) {
@@ -266,7 +322,7 @@ public class ProcessingApplication extends PApplet {
 			}
 		});
 
-		userInputTextField = new ProcessingTextField(this, width / 2 - 50, height/2 -50, "Enter Board-Size");
+		userInputTextField = new ProcessingTextField(this, width / 2 - 50, height / 2 - 50, "Enter Board-Size");
 		userInputTextField.onEnter(new IProcessingAction() {
 
 			@Override
@@ -279,15 +335,15 @@ public class ProcessingApplication extends PApplet {
 				}
 
 				showUserInputTextField = false;
-				//TODO: some resetAction if 'SOLVE' was already clicked
+				// TODO: some resetAction if 'SOLVE' was already clicked
 			}
 		});
 	}
 
-
-
 	public void draw() {
 		background(255);
+		fullscreenButton.setButtonX(width - 25);
+		fullscreenButton.draw();
 		if (mainMenu) {
 			drawMainMenu();
 		} else {
@@ -300,15 +356,16 @@ public class ProcessingApplication extends PApplet {
 			if (allowUserInput) {
 				solveButton.draw();
 				sizeButton.draw();
-				if(showUserInputTextField){
+				if (showUserInputTextField) {
 					userInputTextField.draw();
 				}
 			}
 
 			// Draw queens
+			int squareSize = SQUARE_SIZE + squareScale > 5 ?  SQUARE_SIZE + squareScale : 5;
 			for (List<Integer> index : queens) {
-				image(img, index.get(0) * SQUARE_SIZE + X_OFF, index.get(1) * SQUARE_SIZE + Y_OFF, SQUARE_SIZE,
-						SQUARE_SIZE);
+				image(queenImg, index.get(0) * squareSize + X_OFF, index.get(1) * squareSize + Y_OFF, squareSize,
+						squareSize);
 			}
 			alertNoSolution.draw();
 			alertSolutionCount.draw();
@@ -335,17 +392,19 @@ public class ProcessingApplication extends PApplet {
 	}
 
 	private void drawQueenTrail() {
+		int squareSize = SQUARE_SIZE + squareScale > 5 ?  SQUARE_SIZE + squareScale : 5;
+		
 		for (List<Integer> index : queens) {
 			List<QueenPosition> tempLines = new ArrayList<QueenPosition>();
 			// Horizontal und vertikal
 			for (int i = 0; i < SIZE; i++) {
 				fill(64);
-				int tempX = index.get(0) * SQUARE_SIZE + X_OFF;
-				int tempY = index.get(1) * SQUARE_SIZE + Y_OFF;
+				int tempX = index.get(0) * squareSize + X_OFF;
+				int tempY = index.get(1) * squareSize + Y_OFF;
 				tempLines.add(new QueenPosition(i, index.get(1)));
 				tempLines.add(new QueenPosition(index.get(0), i));
-				rect(i * SQUARE_SIZE + X_OFF, tempY, SQUARE_SIZE, SQUARE_SIZE);
-				rect(tempX, i * SQUARE_SIZE + Y_OFF, SQUARE_SIZE, SQUARE_SIZE);
+				rect(i * squareSize + X_OFF, tempY, squareSize, squareSize);
+				rect(tempX, i * squareSize + Y_OFF, squareSize, squareSize);
 			}
 			// diagonal
 			fill(64);
@@ -372,20 +431,20 @@ public class ProcessingApplication extends PApplet {
 			// show positive diagonal
 			while (y_cord_diaPosStart >= 0 && x_cord_diaPosStart <= size_official
 					&& y_cord_diaPosStart <= size_official) {
-				int tempX = x_cord_diaPosStart * SQUARE_SIZE + X_OFF;
-				int tempYPos = y_cord_diaPosStart * SQUARE_SIZE + Y_OFF;
+				int tempX = x_cord_diaPosStart * squareSize + X_OFF;
+				int tempYPos = y_cord_diaPosStart * squareSize + Y_OFF;
 				tempLines.add(new QueenPosition(x_cord_diaPosStart, y_cord_diaPosStart));
-				rect(tempX, tempYPos, SQUARE_SIZE, SQUARE_SIZE);
+				rect(tempX, tempYPos, squareSize, squareSize);
 				y_cord_diaPosStart++;
 				x_cord_diaPosStart++;
 			}
 			// show negative diagonal
 			while (y_cord_diaNegStart <= size_official && x_cord_diaNegStart <= size_official
 					&& y_cord_diaNegStart >= 0) {
-				int tempX = x_cord_diaNegStart * SQUARE_SIZE + X_OFF;
-				int tempYNeg = y_cord_diaNegStart * SQUARE_SIZE + Y_OFF;
+				int tempX = x_cord_diaNegStart * squareSize + X_OFF;
+				int tempYNeg = y_cord_diaNegStart * squareSize + Y_OFF;
 				tempLines.add(new QueenPosition(x_cord_diaNegStart, y_cord_diaNegStart));
-				rect(tempX, tempYNeg, SQUARE_SIZE, SQUARE_SIZE);
+				rect(tempX, tempYNeg, squareSize, squareSize);
 				y_cord_diaNegStart--;
 				x_cord_diaNegStart++;
 			}
@@ -438,33 +497,45 @@ public class ProcessingApplication extends PApplet {
 	}
 
 	private void drawField() {
-
+		int squareSize = SQUARE_SIZE + squareScale > 5 ?  SQUARE_SIZE + squareScale : 5;
+		
+		
 		for (int i = 0; i < SIZE; i++) {
 			for (int j = 0; j < SIZE; j++) {
-				int tempX = i * SQUARE_SIZE + X_OFF;
-				int tempY = j * SQUARE_SIZE + Y_OFF;
+				int tempX = i * squareSize + X_OFF;
+				int tempY = j * squareSize + Y_OFF;
 				if ((i + j) % 2 == 0) {
 					fill(0);
-					rect(tempX, tempY, SQUARE_SIZE, SQUARE_SIZE);
+					rect(tempX, tempY, squareSize, squareSize);
 				} else {
 					fill(255);
-					rect(tempX, tempY, SQUARE_SIZE, SQUARE_SIZE);
+					rect(tempX, tempY, squareSize, squareSize);
 				}
 			}
 		}
 	}
+
+	private void goToBoard() {
+		solver = new SolutionsWithProlog(SIZE, queens);
+		solutions = solver.solve();
+		queens = getProcessingIndexFromPrologIndex(solutions.get(solutionIndex));
+		mainMenu = false;
+		mainMenuChooseSize = false;
+	}
+
+	// INPUT FUNKTIONEN
 	public void keyPressed() {
-//		49 - 57
 		if (this.showTextField) {
 			this.sizeInputTextField.keyPressed(key);
 		}
-		if(this.showUserInputTextField){
+		if (this.showUserInputTextField) {
 			this.userInputTextField.keyPressed(key);
 		}
 	}
 
 	public void mouseClicked() {
 		System.out.println(System.lineSeparator() + "MouseX: " + mouseX + ", " + " MouseY: " + mouseY);
+		fullscreenButton.mousePressed();
 		if (mainMenu) {
 			startButton.mousePressed();
 			quitButton.mousePressed();
@@ -474,20 +545,20 @@ public class ProcessingApplication extends PApplet {
 						showTextField = false;
 						this.sizeInputTextField.setFocus(false);
 					}
-				}else {
+				} else {
 					chooseSize4Button.mousePressed();
 					chooseSize8Button.mousePressed();
 					chooseSize10Button.mousePressed();
 					chooseUserSizeButton.mousePressed();
 					chooseUserInputButton.mousePressed();
-					
+
 				}
 			}
 		} else {
 			List<Integer> index = getChessTileFromMouse(mouseX, mouseY);
-			
+
 			System.out.println("Chess tile index " + Arrays.toString(index.toArray()));
-			if(!disableQueenDeletion) {
+			if (!disableQueenDeletion) {
 				if (index.get(0) != -1 && index.get(1) != -1) {
 
 					List<Integer> tempIndex = new ArrayList<Integer>();
@@ -538,6 +609,12 @@ public class ProcessingApplication extends PApplet {
 		}
 	}
 
+	public void mouseWheel(MouseEvent event) {
+		if (!mainMenu) {
+			squareScale += event.getCount();
+		}
+	}
+
 	private List<Integer> getChessTileFromMouse(int x, int y) {
 		if (x > SIZE * SQUARE_SIZE + X_OFF || y > SIZE * SQUARE_SIZE + Y_OFF || x < X_OFF || y < Y_OFF) {
 			return Arrays.asList(-1, -1);
@@ -564,19 +641,4 @@ public class ProcessingApplication extends PApplet {
 		return indices;
 	}
 
-	/**
-	 * 
-	 */
-	private void goToBoard() {
-		solver = new SolutionsWithProlog(SIZE, queens);
-		solutions = solver.solve();
-		queens = getProcessingIndexFromPrologIndex(solutions.get(solutionIndex));
-		mainMenu = false;
-		mainMenuChooseSize = false;
-	}
-
-	public static void startApp() {
-		String[] appletArgs = new String[] { ProcessingApplication.class.getName() };
-		PApplet.main(appletArgs);
-	}
 }

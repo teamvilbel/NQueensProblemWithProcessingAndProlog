@@ -1,3 +1,4 @@
+import processing.core.PApplet;
 import thm.vilbel.com.processing.ProcessingApplication;
 
 /**
@@ -16,7 +17,8 @@ public class Main {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		ProcessingApplication.startApp();
+		String[] appletArgs = new String[] { ProcessingApplication.class.getName() };
+		PApplet.main(appletArgs);
 	}
 
 }
