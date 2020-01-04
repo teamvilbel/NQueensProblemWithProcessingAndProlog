@@ -31,13 +31,14 @@ public class ProcessingApplication extends PApplet {
 	private final int windowHeight = 1000;
 	private final int windowWidth = 1000;
 
-	private final int firstRow = 100;
-	private final int firstColl = 100;
+	private final int firstColl = 25;
 
-	private final int X_OFF = 125;
-	private final int Y_OFF = 50;
+	private final int X_OFF = 175;
+	private final int Y_OFF = firstColl +51;
 	private final int SQUARE_SIZE = 75;
 	private int squareScale = 0;
+	int yTrack = 0; // keep track of the y pos for the next GUI element on the board view
+
 	private int SIZE = 8;
 
 	private List<List<Integer>> solutions;
@@ -56,6 +57,7 @@ public class ProcessingApplication extends PApplet {
 	private ProcessingButton solveButton;
 	// button to trigger userInputTextField in UserInputScreen
 	private ProcessingButton sizeButton;
+	private ProcessingButton resetBoardButton;
 	private ProcessingButton backButton;
 	private ProcessingButton chooseSize4Button;
 	private ProcessingButton chooseSize8Button;
@@ -125,11 +127,9 @@ public class ProcessingApplication extends PApplet {
 			allowUserInput = true;
 			disableQueenDeletion = false;
 			ProcessingApplication.this.SIZE = 8;
-			solveButton = new ProcessingButton(ProcessingApplication.this, ProcessingApplication.this.width / 2 - 45,
-					ProcessingApplication.this.SQUARE_SIZE * ProcessingApplication.this.SIZE + 2 * Y_OFF, "SOLVE");
+			solveButton = new ProcessingButton(ProcessingApplication.this, firstColl, (yTrack+=50), "SOLVE");
 			solveButton.onClick(solveAction);
-			sizeButton = new ProcessingButton(ProcessingApplication.this, ProcessingApplication.this.width / 2 - 45,
-					ProcessingApplication.this.SQUARE_SIZE * ProcessingApplication.this.SIZE + 4 * Y_OFF, "SIZE");
+			sizeButton = new ProcessingButton(ProcessingApplication.this, firstColl, (yTrack+=50), "Resize");
 			sizeButton.onClick(newSizeAction);
 			mainMenu = false;
 			mainMenuChooseSize = false;
@@ -186,6 +186,9 @@ public class ProcessingApplication extends PApplet {
 			solutionIndex = 0;
 			queens.clear();
 			queenLines.clear();
+			if (solutions !=null) {
+				solutions.clear();
+			}
 		}
 	};
 	private IProcessingAction nextAction = new IProcessingAction() {
@@ -239,6 +242,21 @@ public class ProcessingApplication extends PApplet {
 		}
 	};
 
+	private IProcessingAction resetAction = new IProcessingAction() {
+		
+		@Override
+		public void doAction() {
+			solutionIndex = 0;
+			queens.clear();
+			queenLines.clear();
+			if (solutions != null) {
+				solutions.clear();
+			}
+			allowUserInput = true;
+			disableQueenDeletion = false;
+		}
+	};
+
 	public ProcessingApplication() {
 		queens = new HashSet<List<Integer>>();
 		queenLines = new HashMap<List<Integer>, List<QueenPosition>>();
@@ -283,13 +301,18 @@ public class ProcessingApplication extends PApplet {
 			nextButton.draw();
 			backButton.draw();
 
+			String temp = (solutions != null && !solutions.isEmpty()? String.format("Solution %d of %d", solutionIndex+1, solutions.size()):"");
+			solutionLabel.setLabelText(temp);
 			if (allowUserInput) {
 				solveButton.draw();
 				sizeButton.draw();
 				if (showUserInputTextField) {
 					userInputTextField.draw();
 				}
+				resetBoardButton.draw();
+				
 			}
+			solutionLabel.draw();
 
 			// Draw queens
 			int squareSize = SQUARE_SIZE + squareScale > 5 ? SQUARE_SIZE + squareScale : 5;
@@ -388,6 +411,7 @@ public class ProcessingApplication extends PApplet {
 			if (allowUserInput) {
 				solveButton.mousePressed();
 				sizeButton.mousePressed();
+				resetBoardButton.mousePressed();
 			}
 		}
 	}
@@ -403,13 +427,12 @@ public class ProcessingApplication extends PApplet {
 	 */
 	private void guiInit() {
 		fullscreenButton = new ProcessingButton(this, width - 50, 0, 25, 25, "F");
-
+		fullscreenButton.onClick(toggleFullscreenAction);
+		
+		// Main menu
 		startButton = new ProcessingButton(this, width / 2 - 100, 200, "Start");
 		quitButton = new ProcessingButton(this, width / 2 - 100, 300, "Quit");
-		nextButton = new ProcessingButton(this, width - 100, 50, "Next");
-		prevButton = new ProcessingButton(this, 20, 50, "Prev");
-		backButton = new ProcessingButton(this, width / 2 - 45, SQUARE_SIZE * SIZE + 300, "Back");
-
+		
 		chooseLabel = new ProcessingLabel(this, width / 2 - 100, 250, "Choose Size:");
 		chooseSize4Button = new ProcessingButton(this, width / 2 - 300, 300, "4x4");
 		chooseSize8Button = new ProcessingButton(this, width / 2 - 200, 300, "8x8");
@@ -417,24 +440,34 @@ public class ProcessingApplication extends PApplet {
 		chooseUserSizeButton = new ProcessingButton(this, width / 2, 300, 150, 45, "Enter Size");
 		chooseUserInputButton = new ProcessingButton(this, width / 2 + 160, 300, 150, 45, "User Input");
 
-		fullscreenButton.onClick(toggleFullscreenAction);
+		// Main menu actions
 		startButton.onClick(startAction);
 		quitButton.onClick(quitAction);
-		nextButton.onClick(nextAction);
-		prevButton.onClick(prevAction);
-		backButton.onClick(backAction);
-
 		chooseSize4Button.onClick(showSolutions4Action);
 		chooseSize8Button.onClick(showSolutions8Action);
 		chooseSize10Button.onClick(showSolutions10Action);
 		chooseUserSizeButton.onClick(enterUserSizeAction);
 		chooseUserInputButton.onClick(showSolutionsUserAction);
-
+		
+		// Board 
+		prevButton = new ProcessingButton(this, firstColl, (yTrack+=75), "Prev");
+		nextButton = new ProcessingButton(this, firstColl, (yTrack+=50), "Next");
+		backButton = new ProcessingButton(this, firstColl, (height-150), "Back");
+		resetBoardButton = new ProcessingButton(this, firstColl, (yTrack+=50), "Reset");
+		solutionLabel = new ProcessingLabel(this, X_OFF, 50 , "Solutions");
+		// Board actions
+		prevButton.onClick(prevAction);
+		nextButton.onClick(nextAction);
+		backButton.onClick(backAction);
+		resetBoardButton.onClick(resetAction );
+	
+		// Alerts 
 		alertNoSolution = new ProcessingAlert(this, width / 2 - 187, height / 2 - 50, 375, 100,
 				"There are no sulotions available\r\nfor this queen configuration!\r\nChange the position of your queens.");
 		alertSolutionCount = new ProcessingAlert(ProcessingApplication.this, width / 2 - 45, SQUARE_SIZE * SIZE + 200,
 				100, 100, " Solutions!");
-
+		
+		// Text Inputs TODO outsrc actions
 		sizeInputTextField = new ProcessingTextField(this, width / 2 - 50, height / 2 - 50, "Enter Board-Size");
 		sizeInputTextField.onEnter(new IProcessingAction() {
 
@@ -459,6 +492,7 @@ public class ProcessingApplication extends PApplet {
 
 				try {
 					SIZE = Integer.valueOf(ProcessingApplication.this.userInputTextField.getTextFieldUserText());
+					resetAction.doAction();
 				} catch (Exception e) {
 					System.out.println("Could not parse!");
 				}

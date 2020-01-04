@@ -23,7 +23,7 @@ public class ProcessingLabel extends ProcessingGui {
 	private int textColor;
 
 	/** Text of the button */
-	private final String labelText;
+	private String labelText;
 
 	/** Size of {@link ProcessingLabel#labelText} */
 	private float textSize;
@@ -62,6 +62,20 @@ public class ProcessingLabel extends ProcessingGui {
 		this.pa.stroke(toProcessingColor(textColor));
 		this.pa.textSize(textSize);
 		this.pa.text(labelText, labelX, labelY);
+	}
+
+	/**
+	 * @return the labelText
+	 */
+	public String getLabelText() {
+		return labelText;
+	}
+
+	/**
+	 * @param labelText the labelText to set
+	 */
+	public void setLabelText(String labelText) {
+		this.labelText = labelText;
 	}
 
 }
