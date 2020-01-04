@@ -13,7 +13,6 @@ import processing.core.PImage;
 import thm.vilbel.com.processing.alert.ProcessingAlert;
 import thm.vilbel.com.processing.button.ProcessingButton;
 import thm.vilbel.com.processing.textfield.ProcessingTextField;
-import thm.vilbel.com.processing.ProcessingLabel;
 import thm.vilbel.com.prolog.SolutionsWithProlog;
 
 /**
@@ -43,6 +42,8 @@ public class ProcessingApplication extends PApplet {
 	private ProcessingButton nextButton;
 	private ProcessingButton prevButton;
 	private ProcessingButton solveButton;
+	//button to trigger userInputTextField in UserInputScreen
+	private ProcessingButton sizeButton;
 	private ProcessingButton backButton;
 
 	private ProcessingLabel chooseLabel;
@@ -55,12 +56,16 @@ public class ProcessingApplication extends PApplet {
 	private ProcessingAlert alertNoSolution;
 	private ProcessingAlert alertSolutionCount;
 	private ProcessingTextField sizeInputTextField;
+	//textField to set BoardSize in UserInputScreen
+	private ProcessingTextField userInputTextField;
 	
 
 	private boolean mainMenu;
 	private boolean mainMenuChooseSize;
 	private boolean disableQueenDeletion;
 	private boolean showTextField;
+	//boolean to toggle userInputTextField
+	private boolean showUserInputTextField;
 
 	private IProcessingAction showSolutions4Action = new IProcessingAction() {
 		@Override
@@ -97,16 +102,17 @@ public class ProcessingApplication extends PApplet {
 	private IProcessingAction showSolutionsUserAction = new IProcessingAction() {
 		@Override
 		public void doAction() {
+			allowUserInput = true;
 			disableQueenDeletion = false;
-			ProcessingApplication.this.SIZE = 8;
+			ProcessingApplication.this.SIZE = 6;
 			solveButton = new ProcessingButton(ProcessingApplication.this, ProcessingApplication.this.width / 2 - 45,
 					ProcessingApplication.this.SQUARE_SIZE * ProcessingApplication.this.SIZE + 2 * Y_OFF, "SOLVE");
 			solveButton.onClick(solveAction);
-			// solver = new SolutionsWithProlog(SIZE, queens);
-//			solutions = solver.solve();
+			sizeButton = new ProcessingButton(ProcessingApplication.this, ProcessingApplication.this.width / 2 - 45,
+					ProcessingApplication.this.SQUARE_SIZE * ProcessingApplication.this.SIZE + 4 * Y_OFF, "SIZE");
+			sizeButton.onClick(newSizeAction);
 			mainMenu = false;
 			mainMenuChooseSize = false;
-			allowUserInput = true;
 		}
 	};
 
@@ -125,6 +131,15 @@ public class ProcessingApplication extends PApplet {
 				alertSolutionCount.resetAlert();
 				queens = getProcessingIndexFromPrologIndex(solutions.get(solutionIndex));
 			}
+		}
+	};
+
+	//action to sizeInput by User
+	private IProcessingAction newSizeAction = new IProcessingAction() {
+		@Override
+		public void doAction() {
+			ProcessingApplication.this.showUserInputTextField = true;
+			ProcessingApplication.this.userInputTextField.setFocus(true);
 		}
 	};
 
@@ -203,8 +218,8 @@ public class ProcessingApplication extends PApplet {
 	public void settings() {
 		size(1000, 1000);
 //		fullScreen();
+		img = loadImage("NQueensProblemWithProcessingAndProlog/resources/Chess_queen_icon.png", "png");
 //		img = loadImage("./resources/Chess_queen_icon.png", "png");
-		img = loadImage("./resources/Unbenannt.png", "png");
 
 		startButton = new ProcessingButton(this, width / 2 - 100, 200, "Start");
 		quitButton = new ProcessingButton(this, width / 2 - 100, 300, "Quit");
@@ -250,7 +265,26 @@ public class ProcessingApplication extends PApplet {
 				ProcessingApplication.this.goToBoard();
 			}
 		});
+
+		userInputTextField = new ProcessingTextField(this, width / 2 - 50, height/2 -50, "Enter Board-Size");
+		userInputTextField.onEnter(new IProcessingAction() {
+
+			@Override
+			public void doAction() {
+
+				try {
+					SIZE = Integer.valueOf(ProcessingApplication.this.userInputTextField.getTextFieldUserText());
+				} catch (Exception e) {
+					System.out.println("Could not parse!");
+				}
+
+				showUserInputTextField = false;
+				//TODO: some resetAction if 'SOLVE' was already clicked
+			}
+		});
 	}
+
+
 
 	public void draw() {
 		background(255);
@@ -265,6 +299,10 @@ public class ProcessingApplication extends PApplet {
 
 			if (allowUserInput) {
 				solveButton.draw();
+				sizeButton.draw();
+				if(showUserInputTextField){
+					userInputTextField.draw();
+				}
 			}
 
 			// Draw queens
@@ -420,6 +458,9 @@ public class ProcessingApplication extends PApplet {
 		if (this.showTextField) {
 			this.sizeInputTextField.keyPressed(key);
 		}
+		if(this.showUserInputTextField){
+			this.userInputTextField.keyPressed(key);
+		}
 	}
 
 	public void mouseClicked() {
@@ -492,6 +533,7 @@ public class ProcessingApplication extends PApplet {
 			backButton.mousePressed();
 			if (allowUserInput) {
 				solveButton.mousePressed();
+				sizeButton.mousePressed();
 			}
 		}
 	}

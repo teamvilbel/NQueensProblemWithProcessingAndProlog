@@ -3,13 +3,7 @@
  */
 package thm.vilbel.com.prolog;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.jpl7.Atom;
 import org.jpl7.JPL;
@@ -37,17 +31,36 @@ public class SolutionsWithProlog {
 	private final String ALL_SOLUTIONS_QUERRY = "distinct(n_queens(%d, Qs)), labeling([ff], Qs).";
 	
 	private final String SOLUTIONS_QUERRY = "distinct(n_queens(%d, %s)), labeling([ff], %s).";
+	//list to handle queenpositions
+	private List<String> queenPositions;
+	//map to save position, queenvalue
+	private HashMap<String, String> queenPositionMap;
+
+
 	
 	public SolutionsWithProlog(final int N, Set<List<Integer>> queens) {
 		super();
 		this.N = N;
 		this.queens = new HashSet<List<Integer>>();
-		
+		this.queenPositions = new ArrayList<String>();
+		this.queenPositions.add("A");
+		this.queenPositions.add("B");
+		this.queenPositions.add("C");
+		this.queenPositions.add("D");
+		this.queenPositions.add("E");
+		this.queenPositions.add("F");
+		this.queenPositions.add("G");
+		this.queenPositions.add("H");
+		this.queenPositions.add("I");
+		this.queenPositions.add("J");
+		this.queenPositions.add("K");
+
+		this.queenPositionMap = new HashMap<>();
 		// Init JPL to access Prolog
 		JPL.init();
 		
 		// Load knowledge base from file.  
-		Query knowledgeBase = new Query("consult", new Term[] { new Atom("./resources/n_queens.pl") });
+		Query knowledgeBase = new Query("consult", new Term[] { new Atom("NQueensProblemWithProcessingAndProlog/resources/n_queens.pl") });
 		
 		System.out.println("Loaded file: " + knowledgeBase.hasSolution());
 	}
@@ -69,9 +82,7 @@ public class SolutionsWithProlog {
 					ArrayList<Integer> solution = new ArrayList<Integer>();
 					for (Term ints : terms) {
 						solution.add(ints.intValue());
-//						System.out.print(ints.intValue() + ", ");
 					}
-//					System.out.println("");
 					solutions.add(solution);
 				}
 			}
@@ -87,7 +98,7 @@ public class SolutionsWithProlog {
 	 * D, E, F, G]).
 	 */
 	public List<List<Integer>> solve(Set<List<Integer>> queens) {
-		
+		//bulletproof till 11 queens
 		String a = "A";
 		String b = "B";
 		String c = "C";
@@ -96,6 +107,10 @@ public class SolutionsWithProlog {
 		String f = "F";
 		String g = "G";
 		String h = "H";
+		String i = "I";
+		String j = "J";
+		String k = "K";
+
 		for (List<Integer> index : queens) {
 			int x = index.get(0);
 			int y = index.get(1);
@@ -103,35 +118,97 @@ public class SolutionsWithProlog {
 			switch (x) {
 			case 0:
 				a = String.valueOf(y);
+				queenPositionMap.put("A", a);
 				break;
 			case 1:
 				b = String.valueOf(y);
+				queenPositionMap.put("B", b);
 				break;
 			case 2:
 				c = String.valueOf(y);
+				queenPositionMap.put("C", c);
 				break;
 			case 3:
 				d = String.valueOf(y);
+				queenPositionMap.put("D", d);
 				break;
 			case 4:
 				e = String.valueOf(y);
+				queenPositionMap.put("E", e);
 				break;
 			case 5:
 				f = String.valueOf(y);
+				queenPositionMap.put("F", f);
 				break;
 			case 6:
 				g = String.valueOf(y);
+				queenPositionMap.put("G", g);
 				break;
 			case 7:
 				h = String.valueOf(y);
+				queenPositionMap.put("H", h);
+				break;
+			case 8:
+				i = String.valueOf(y);
+				queenPositionMap.put("I", i);
+				break;
+			case 9:
+				j = String.valueOf(y);
+				queenPositionMap.put("J", j);
+				break;
+			case 10:
+				k = String.valueOf(y);
+				queenPositionMap.put("K", k);
 				break;
 			default:
 				break;
 			}
 			
 		}
-		
-		String result = "[" + a + "," + b + "," + c + "," + d + "," + e + "," + f + "," + g + "," + h + "]";
+
+		//for each boardSize the resultString
+		String result="";
+		switch (this.N) {
+			case 0:
+				result = "["+"]";
+				break;
+			case 1:
+				result = "[" + a +  "]";
+				break;
+			case 2:
+				result = "[" + a + "," + b + "]";
+				break;
+			case 3:
+				result = "[" + a + "," + b + "," + c + "]";
+				break;
+			case 4:
+				result = "[" + a + "," + b + "," + c + "," + d+"]";
+				break;
+			case 5:
+				result = "[" + a + "," + b + "," + c + "," + d+"," + e+"]";
+				break;
+			case 6:
+				result = "[" + a + "," + b + "," + c + "," + d+"," + e + "," + f +"]";
+				break;
+			case 7:
+				result = "[" + a + "," + b + "," + c + "," + d + "," + e + "," + f + "," + g +"]";
+				break;
+			case 8:
+				result = "[" + a + "," + b + "," + c + "," + d + "," + e + "," + f + "," + g + "," + h + "]";
+				break;
+			case 9:
+				result = "[" + a + "," + b + "," + c + "," + d + "," + e + "," + f + "," + g + "," + h +"," + i + "]";
+				break;
+			case 10:
+				result = "[" + a + "," + b + "," + c + "," + d + "," + e + "," + f + "," + g + "," + h +"," + i +"," + j + "]";
+				break;
+			case 11:
+				result = "[" + a + "," + b + "," + c + "," + d + "," + e + "," + f + "," + g + "," + h +"," + i +"," + j +"," + k + "]";
+				break;
+
+			default:
+				break;
+		}
 		String query = String.format(SOLUTIONS_QUERRY, this.N, result, result);
 		System.out.println(query);
 		ArrayList<List<Integer>> solutions = new ArrayList<List<Integer>>();
@@ -142,80 +219,28 @@ public class SolutionsWithProlog {
 			for (Map<String, Term> map : allSolutions) {
 				Iterator queensIterator = queens.iterator();
 				List<Integer> results = new ArrayList<Integer>();
-				if(map.get("A") != null)
-				{
-					results.add(map.get("A").intValue());
-				}
-				else
-				{
-					results.add( Integer.valueOf(a) );
-				}
-				if(map.get("B") != null)
-				{
-					results.add(map.get("B").intValue());
-				}
-				else
-				{
-					results.add( Integer.valueOf(b) );
-				}
-				if(map.get("C") != null)
-				{
-					results.add(map.get("C").intValue());
-				}
-				else
-				{
-					results.add( Integer.valueOf(c) );
-				}
-				if(map.get("D") != null)
-				{
-					results.add(map.get("D").intValue());
-				}
-				else
-				{
-					results.add( Integer.valueOf(d) );
-				}
-				if(map.get("E") != null)
-				{
-					results.add(map.get("E").intValue());
-				}
-				else
-				{
-					results.add( Integer.valueOf(e) );
-				}
-				if(map.get("F") != null)
-				{
-					results.add(map.get("F").intValue());
-				}
-				else
-				{
-					results.add( Integer.valueOf(f) );
-				}
-				if(map.get("G") != null)
-				{
-					results.add(map.get("G").intValue());
-				}
-				else
-				{
-					results.add( Integer.valueOf(g) );
-				}
-				if(map.get("H") != null)
-				{
-					results.add(map.get("H").intValue());
-				}
-				else
-				{
-					results.add( Integer.valueOf(h) );
+				for (int l = 0; l < this.N ; l++) {
+					if(map.get(this.queenPositions.get(l)) != null)
+					{
+						results.add(map.get(this.queenPositions.get(l)).intValue());
+					}
+					else
+					{
+						results.add( Integer.valueOf(this.queenPositionMap.get(this.queenPositions.get(l))));
+					}
 				}
 				System.out.println(results);
 				solutions.add(results);
 			}
+			//clear container to avoid anomalies
+			queenPositions.clear();
+			queenPositionMap.clear();
 			return solutions;
 		}else {
 			System.out.println("This has no solutions");
 			return solutions;
 		}
 	}
-	
 	/**
 	 * @return the queens
 	 */
