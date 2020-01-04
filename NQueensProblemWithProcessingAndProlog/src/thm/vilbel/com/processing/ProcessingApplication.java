@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 import processing.core.PApplet;
+import processing.core.PConstants;
 import processing.core.PImage;
 import processing.event.MouseEvent;
 import thm.vilbel.com.processing.alert.ProcessingAlert;
@@ -269,6 +270,134 @@ public class ProcessingApplication extends PApplet {
 		guiInit();
 	}
 
+	public void draw() {
+		background(255);
+		fullscreenButton.setButtonX(width - 25);
+		fullscreenButton.draw();
+		if (mainMenu) {
+			drawMainMenu();
+		} else {
+			drawField();
+			drawQueenTrail();
+			prevButton.draw();
+			nextButton.draw();
+			backButton.draw();
+
+			if (allowUserInput) {
+				solveButton.draw();
+				sizeButton.draw();
+				if (showUserInputTextField) {
+					userInputTextField.draw();
+				}
+			}
+
+			// Draw queens
+			int squareSize = SQUARE_SIZE + squareScale > 5 ? SQUARE_SIZE + squareScale : 5;
+			for (List<Integer> index : queens) {
+				image(queenImg, index.get(0) * squareSize + X_OFF, index.get(1) * squareSize + Y_OFF, squareSize,
+						squareSize);
+			}
+			alertNoSolution.draw();
+			alertSolutionCount.draw();
+		}
+	}
+
+	// INPUT FUNKTIONEN
+	public void keyPressed() {
+		// TODO Strg+F for Fullscreen
+		if(key=='f') {
+			toggleFullscreenAction.doAction();
+		}
+		if (this.showTextField) {
+			this.sizeInputTextField.keyPressed(key);
+		}
+		if (this.showUserInputTextField) {
+			this.userInputTextField.keyPressed(key);
+		}
+	}
+
+	public void mouseClicked() {
+		System.out.println(System.lineSeparator() + "MouseX: " + mouseX + ", " + " MouseY: " + mouseY);
+		fullscreenButton.mousePressed();
+		if (mainMenu) {
+			startButton.mousePressed();
+			quitButton.mousePressed();
+			if (mainMenuChooseSize) {
+				if (showTextField) {
+					if (!this.sizeInputTextField.overTextField()) {
+						showTextField = false;
+						this.sizeInputTextField.setFocus(false);
+					}
+				} else {
+					chooseSize4Button.mousePressed();
+					chooseSize8Button.mousePressed();
+					chooseSize10Button.mousePressed();
+					chooseUserSizeButton.mousePressed();
+					chooseUserInputButton.mousePressed();
+
+				}
+			}
+		} else {
+			List<Integer> index = getChessTileFromMouse(mouseX, mouseY);
+
+			System.out.println("Chess tile index " + Arrays.toString(index.toArray()));
+			if (!disableQueenDeletion) {
+				if (index.get(0) != -1 && index.get(1) != -1) {
+
+					List<Integer> tempIndex = new ArrayList<Integer>();
+					boolean queenRemoved = false;
+					for (List<Integer> indexOfQueens : queens) {
+						if (index.get(0) == indexOfQueens.get(0) && index.get(1) == indexOfQueens.get(1)) {
+							tempIndex = indexOfQueens;
+						}
+					}
+					if (!tempIndex.isEmpty()) {
+						queens.remove(tempIndex);
+						List<Integer> tempQueen = new ArrayList<Integer>();
+						for (List<Integer> qu : queenLines.keySet()) {
+							if (tempIndex.get(0) == qu.get(0) && tempIndex.get(1) == qu.get(1)) {
+								tempQueen = qu;
+							}
+						}
+						queenLines.remove(tempQueen);
+						queenRemoved = true;
+					}
+					if (!queenRemoved) {
+						boolean freeSpace = true;
+						for (Map.Entry<List<Integer>, List<QueenPosition>> pair : queenLines.entrySet()) {
+							for (QueenPosition position : pair.getValue()) {
+								if (index.get(0) >= 0 && index.get(1) >= 0) {
+									if (position.getxPosition() == index.get(0)
+											&& position.getyPosition() == index.get(1)) {
+										freeSpace = false;
+									}
+								}
+							}
+						}
+						if (freeSpace) {
+							queens.add(index);
+						} else {
+							System.out.println("Not a free index for a queen " + Arrays.toString(index.toArray()));
+						}
+					}
+				}
+			}
+			nextButton.mousePressed();
+			prevButton.mousePressed();
+			backButton.mousePressed();
+			if (allowUserInput) {
+				solveButton.mousePressed();
+				sizeButton.mousePressed();
+			}
+		}
+	}
+
+	public void mouseWheel(MouseEvent event) {
+		if (!mainMenu) {
+			squareScale += event.getCount();
+		}
+	}
+
 	/**
 	 * Erstellung der GUI Komponenten.
 	 */
@@ -340,38 +469,6 @@ public class ProcessingApplication extends PApplet {
 		});
 	}
 
-	public void draw() {
-		background(255);
-		fullscreenButton.setButtonX(width - 25);
-		fullscreenButton.draw();
-		if (mainMenu) {
-			drawMainMenu();
-		} else {
-			drawField();
-			drawQueenTrail();
-			prevButton.draw();
-			nextButton.draw();
-			backButton.draw();
-
-			if (allowUserInput) {
-				solveButton.draw();
-				sizeButton.draw();
-				if (showUserInputTextField) {
-					userInputTextField.draw();
-				}
-			}
-
-			// Draw queens
-			int squareSize = SQUARE_SIZE + squareScale > 5 ?  SQUARE_SIZE + squareScale : 5;
-			for (List<Integer> index : queens) {
-				image(queenImg, index.get(0) * squareSize + X_OFF, index.get(1) * squareSize + Y_OFF, squareSize,
-						squareSize);
-			}
-			alertNoSolution.draw();
-			alertSolutionCount.draw();
-		}
-	}
-
 	private void drawMainMenu() {
 		if (mainMenuChooseSize) {
 			chooseLabel.draw();
@@ -392,8 +489,8 @@ public class ProcessingApplication extends PApplet {
 	}
 
 	private void drawQueenTrail() {
-		int squareSize = SQUARE_SIZE + squareScale > 5 ?  SQUARE_SIZE + squareScale : 5;
-		
+		int squareSize = SQUARE_SIZE + squareScale > 5 ? SQUARE_SIZE + squareScale : 5;
+
 		for (List<Integer> index : queens) {
 			List<QueenPosition> tempLines = new ArrayList<QueenPosition>();
 			// Horizontal und vertikal
@@ -497,9 +594,8 @@ public class ProcessingApplication extends PApplet {
 	}
 
 	private void drawField() {
-		int squareSize = SQUARE_SIZE + squareScale > 5 ?  SQUARE_SIZE + squareScale : 5;
-		
-		
+		int squareSize = SQUARE_SIZE + squareScale > 5 ? SQUARE_SIZE + squareScale : 5;
+
 		for (int i = 0; i < SIZE; i++) {
 			for (int j = 0; j < SIZE; j++) {
 				int tempX = i * squareSize + X_OFF;
@@ -523,109 +619,18 @@ public class ProcessingApplication extends PApplet {
 		mainMenuChooseSize = false;
 	}
 
-	// INPUT FUNKTIONEN
-	public void keyPressed() {
-		if (this.showTextField) {
-			this.sizeInputTextField.keyPressed(key);
-		}
-		if (this.showUserInputTextField) {
-			this.userInputTextField.keyPressed(key);
-		}
-	}
-
-	public void mouseClicked() {
-		System.out.println(System.lineSeparator() + "MouseX: " + mouseX + ", " + " MouseY: " + mouseY);
-		fullscreenButton.mousePressed();
-		if (mainMenu) {
-			startButton.mousePressed();
-			quitButton.mousePressed();
-			if (mainMenuChooseSize) {
-				if (showTextField) {
-					if (!this.sizeInputTextField.overTextField()) {
-						showTextField = false;
-						this.sizeInputTextField.setFocus(false);
-					}
-				} else {
-					chooseSize4Button.mousePressed();
-					chooseSize8Button.mousePressed();
-					chooseSize10Button.mousePressed();
-					chooseUserSizeButton.mousePressed();
-					chooseUserInputButton.mousePressed();
-
-				}
-			}
-		} else {
-			List<Integer> index = getChessTileFromMouse(mouseX, mouseY);
-
-			System.out.println("Chess tile index " + Arrays.toString(index.toArray()));
-			if (!disableQueenDeletion) {
-				if (index.get(0) != -1 && index.get(1) != -1) {
-
-					List<Integer> tempIndex = new ArrayList<Integer>();
-					boolean queenRemoved = false;
-					for (List<Integer> indexOfQueens : queens) {
-						if (index.get(0) == indexOfQueens.get(0) && index.get(1) == indexOfQueens.get(1)) {
-							tempIndex = indexOfQueens;
-						}
-					}
-					if (!tempIndex.isEmpty()) {
-						queens.remove(tempIndex);
-						List<Integer> tempQueen = new ArrayList<Integer>();
-						for (List<Integer> qu : queenLines.keySet()) {
-							if (tempIndex.get(0) == qu.get(0) && tempIndex.get(1) == qu.get(1)) {
-								tempQueen = qu;
-							}
-						}
-						queenLines.remove(tempQueen);
-						queenRemoved = true;
-					}
-					if (!queenRemoved) {
-						boolean freeSpace = true;
-						for (Map.Entry<List<Integer>, List<QueenPosition>> pair : queenLines.entrySet()) {
-							for (QueenPosition position : pair.getValue()) {
-								if (index.get(0) >= 0 && index.get(1) >= 0) {
-									if (position.getxPosition() == index.get(0)
-											&& position.getyPosition() == index.get(1)) {
-										freeSpace = false;
-									}
-								}
-							}
-						}
-						if (freeSpace) {
-							queens.add(index);
-						} else {
-							System.out.println("Not a free index for a queen " + Arrays.toString(index.toArray()));
-						}
-					}
-				}
-			}
-			nextButton.mousePressed();
-			prevButton.mousePressed();
-			backButton.mousePressed();
-			if (allowUserInput) {
-				solveButton.mousePressed();
-				sizeButton.mousePressed();
-			}
-		}
-	}
-
-	public void mouseWheel(MouseEvent event) {
-		if (!mainMenu) {
-			squareScale += event.getCount();
-		}
-	}
-
 	private List<Integer> getChessTileFromMouse(int x, int y) {
-		if (x > SIZE * SQUARE_SIZE + X_OFF || y > SIZE * SQUARE_SIZE + Y_OFF || x < X_OFF || y < Y_OFF) {
+		int squareSize = SQUARE_SIZE + squareScale > 5 ? SQUARE_SIZE + squareScale : 5;
+		if (x > SIZE * squareSize + X_OFF || y > SIZE * squareSize + Y_OFF || x < X_OFF || y < Y_OFF) {
 			return Arrays.asList(-1, -1);
 		} else {
 			int tempX = (x - X_OFF);
-			tempX = tempX - (tempX % SQUARE_SIZE);
-			tempX = tempX / SQUARE_SIZE;
+			tempX = tempX - (tempX % squareSize);
+			tempX = tempX / squareSize;
 
 			int tempY = (y - Y_OFF);
-			tempY = tempY - (tempY % SQUARE_SIZE);
-			tempY = tempY / SQUARE_SIZE;
+			tempY = tempY - (tempY % squareSize);
+			tempY = tempY / squareSize;
 			return Arrays.asList(tempX, tempY);
 		}
 	}
