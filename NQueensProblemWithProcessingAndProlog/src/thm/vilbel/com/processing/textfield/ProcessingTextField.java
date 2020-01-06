@@ -113,10 +113,24 @@ public class ProcessingTextField extends ProcessingGui {
 	 * @param pa
 	 * @param textFieldX
 	 * @param textFieldY
+	 * @param textFieldSizeX
+	 * @param textFieldSizeY
+	 * @param headerTextFieldText
+	 * @param textFieldUserText
+	 */
+	public ProcessingTextField(PApplet pa, int textFieldX, int textFieldY, int textFieldSizeX, int textFieldSizeY,
+			String headerTextFieldText, String textFieldUserText) {
+		this(pa, textFieldX, textFieldY, textFieldSizeX, textFieldSizeY, headerTextFieldText, textFieldUserText, 20);
+	}
+
+	/**
+	 * @param pa
+	 * @param textFieldX
+	 * @param textFieldY
 	 * @param headerTextFieldText
 	 */
 	public ProcessingTextField(PApplet pa, int textFieldX, int textFieldY, String headerTextFieldText) {
-		this(pa, textFieldX, textFieldY, 200, 100, headerTextFieldText, "Size", 20);
+		this(pa, textFieldX, textFieldY, 200, 100, headerTextFieldText, "", 20);
 	}
 
 	@Override
