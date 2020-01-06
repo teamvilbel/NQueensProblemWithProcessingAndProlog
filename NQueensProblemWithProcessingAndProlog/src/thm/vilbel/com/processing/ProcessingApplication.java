@@ -363,7 +363,6 @@ public class ProcessingApplication extends PApplet {
 					chooseSize10Button.mousePressed();
 					chooseUserSizeButton.mousePressed();
 					chooseUserInputButton.mousePressed();
-
 				}
 			}
 		} else {
@@ -423,6 +422,7 @@ public class ProcessingApplication extends PApplet {
 				}
 				solveButton.mousePressed();
 				sizeButton.mousePressed();
+				resetBoardButton.mousePressed();
 			}
 
 		}
