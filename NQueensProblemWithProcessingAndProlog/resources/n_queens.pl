@@ -3,6 +3,9 @@
 
    Written Feb. 2008 by Markus Triska (triska@metalevel.at)
    Public domain code.
+   
+   Der kompletter Code verfühgbar unter https://www.metalevel.at/queens/queens.pl
+   Die Webseite https://www.metalevel.at/queens/
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 :- use_module(library(clpfd)).
