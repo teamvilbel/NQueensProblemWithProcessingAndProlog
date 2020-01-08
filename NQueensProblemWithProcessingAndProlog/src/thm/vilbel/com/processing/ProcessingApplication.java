@@ -1,5 +1,6 @@
 package thm.vilbel.com.processing;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -71,6 +72,7 @@ public class ProcessingApplication extends PApplet {
 
 	// Alerts
 	private ProcessingAlert alertNoSolution;
+	private ProcessingAlert alertNoSolutionBoardSize;
 	private ProcessingAlert alertSolutionCount;
 
 	// Textfields
@@ -298,6 +300,7 @@ public class ProcessingApplication extends PApplet {
 		fullscreenButton.draw();
 		if (mainMenu) {
 			drawMainMenu();
+			alertNoSolutionBoardSize.draw();
 		} else {
 			drawField();
 			drawQueenTrail();
@@ -452,6 +455,7 @@ public class ProcessingApplication extends PApplet {
 		chooseUserSizeButton = new ProcessingButton(this, width / 2, 300, 150, 45, "Enter Size");
 		chooseUserInputButton = new ProcessingButton(this, width / 2 + 160, 300, 150, 45, "User Input");
 
+		
 		// Main menu actions
 		startButton.onClick(startAction);
 		quitButton.onClick(quitAction);
@@ -475,9 +479,11 @@ public class ProcessingApplication extends PApplet {
 
 		// Alerts
 		alertNoSolution = new ProcessingAlert(this, width / 2 - 187, height / 2 - 50, 375, 100,
-				"There are no sulotions available\r\nfor this queen configuration!\r\nChange the position of your queens.");
+				"There are no solutions available\r\nfor this queen configuration!\r\nChange the position of your queens!");
 		alertSolutionCount = new ProcessingAlert(ProcessingApplication.this, width / 2 - 45, SQUARE_SIZE * SIZE + 200,
 				100, 100, " Solutions!");
+		alertNoSolutionBoardSize = new ProcessingAlert(this, width / 2 - 187, height / 2 - 50, 375, 100,
+				"There are no solutions available\r\nfor this board configuration!\r\nChange the size of your board!");
 
 		// Text Inputs TODO outsrc actions
 		sizeInputTextField = new ProcessingTextField(this, width / 2 - 50, height / 2 - 50, "Enter Board-Size");
@@ -660,11 +666,18 @@ public class ProcessingApplication extends PApplet {
 	private void goToBoard() {
 		solver = new SolutionsWithProlog(SIZE, queens);
 		solutions = solver.solve();
-		queens = getProcessingIndexFromPrologIndex(solutions.get(solutionIndex));
-		mainMenu = false;
-		mainMenuChooseSize = false;
+		try {
+			queens = getProcessingIndexFromPrologIndex(solutions.get(solutionIndex));
+			mainMenu = false;
+			mainMenuChooseSize = false;
+		}catch (IndexOutOfBoundsException indexOutOfBoundsException) {
+			System.err.println(indexOutOfBoundsException);
+			mainMenu = true;
+			mainMenuChooseSize = true;
+			this.alertNoSolutionBoardSize.resetAlert();
+		}
 	}
-
+	
 	private List<Integer> getChessTileFromMouse(int x, int y) {
 		int squareSize = SQUARE_SIZE + squareScale > 5 ? SQUARE_SIZE + squareScale : 5;
 		if (x > SIZE * squareSize + X_OFF || y > SIZE * squareSize + Y_OFF || x < X_OFF || y < Y_OFF) {
